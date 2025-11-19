@@ -1,0 +1,34 @@
+﻿@* <p>您好，@User.Identity.Name</p>
+<p>所屬養殖戶：@User.FindFirst("TenantName")?.Value</p>
+<p>群組：@User.FindFirst("GroupName")?.Value</p>
+
+<ul>
+    @foreach (var f in User.FindAll("Function"))
+    {
+        <li>@f.Value</li>
+    }
+</ul> *@
+
+<div class="container mt-4">
+    <h2>使用者基本資料</h2>
+    <hr />
+
+    <dl class="row">
+        <dt class="col-sm-3">帳號：</dt>
+        <dd class="col-sm-9">@User.Identity.Name</dd>
+
+        <dt class="col-sm-3">所屬養殖戶：</dt>
+        <dd class="col-sm-9">@User.FindFirst("TenantName")?.Value</dd>
+
+        <dt class="col-sm-3">群組：</dt>
+        <dd class="col-sm-9">@User.FindFirst("GroupName")?.Value</dd>
+    </dl>
+
+    <h4>功能權限清單</h4>
+    <ul class="list-group">
+        @foreach (var f in User.FindAll("Function"))
+        {
+            <li class="list-group-item">@f.Value</li>
+        }
+    </ul>
+</div>

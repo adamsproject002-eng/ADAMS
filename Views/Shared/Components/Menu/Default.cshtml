@@ -1,0 +1,109 @@
+﻿@* @model List<ADAMS.Models.Function>
+@{
+    var allFunctions = ViewBag.AllFunctions as List<ADAMS.Models.Function>;
+}
+
+<ul class="nav flex-column">
+    @foreach (var parent in Model)
+    {
+        var children = allFunctions.Where(f => f.UpperFunctionSN == parent.FunctionSN).ToList();
+
+        if (children.Any())
+        {
+            <!-- 可展開的主選單 -->
+            <li class="nav-item mb-1">
+                <button class="btn btn-primary w-100 text-start"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#menu-@parent.FunctionSN">
+                    @parent.CName
+                </button>
+
+                <div class="collapse" id="menu-@parent.FunctionSN">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var child in children)
+                        {
+                            <li class="list-group-item">
+                                <a class="nav-link text-dark"
+                                   asp-area=""
+                                   asp-controller="@child.Name"
+                                   asp-action="Index">
+                                    @child.CName
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </li>
+        }
+        else
+        {
+            <!-- 無子項的主功能 -->
+            <li class="nav-item mb-1">
+                <a class="btn btn-outline-primary w-100 text-start"
+                   asp-area=""
+                   asp-controller="@parent.Name"
+                   asp-action="Index">
+                    @parent.CName
+                </a>
+            </li>
+        }
+    }
+</ul> 
+ *@
+
+@model List<ADAMS.Models.Function>
+@{
+    var allFunctions = ViewBag.AllFunctions as List<ADAMS.Models.Function>;
+}
+
+<ul class="nav flex-row flex-wrap gap-2 justify-content-start">
+    @foreach (var parent in Model)
+    {
+        var children = allFunctions.Where(f => f.UpperFunctionSN == parent.FunctionSN).ToList();
+
+        <li class="nav-item position-relative" style="min-width: 200px;">
+            @if (children.Any())
+            {
+                <button class="btn btn-primary w-100 text-start"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#menu-@parent.FunctionSN"
+                        aria-expanded="false"
+                        aria-controls="menu-@parent.FunctionSN">
+                    @parent.CName
+                </button>
+
+                <!-- 子選單區塊 -->
+                <div class="collapse mt-1" id="menu-@parent.FunctionSN">
+                    <ul class="list-group">
+                        @foreach (var child in children)
+                        {
+                            <li class="list-group-item p-1">
+                                <a class="nav-link text-dark"
+                                   asp-area="@parent.Name"
+                                   asp-controller="@child.Name"
+                                   asp-action="Index">
+                                    @child.CName
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+            else
+            {
+                <a class="btn btn-outline-primary w-100 text-start"
+                   asp-area=""
+                   asp-controller="@parent.Name"
+                   asp-action="Index">
+                    @parent.CName
+                </a>
+            }
+        </li>
+    }
+</ul>
+
+
+
+
