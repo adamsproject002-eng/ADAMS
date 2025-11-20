@@ -112,11 +112,97 @@ namespace ADAMS.Data
                 FunctionSN = fid,
                 CreateUser = "seed"
             }).ToList();
-
+            
             db.Authorization.AddRange(authList);
             db.SaveChanges();
 
             Console.WriteLine("✅ 假資料已建立完成！");
+
+                        // ===== Area 範例資料 =====
+            var area1 = new Area
+            {
+                AreaName = "場區A",
+                TenantSN = 1,
+                GPSX = "120.123456",
+                GPSY = "23.123456",
+                CreateUser = "seed"
+            };
+            var area2 = new Area
+            {
+                AreaName = "場區B",
+                TenantSN = 1,
+                GPSX = "120.654321",
+                GPSY = "23.654321",
+                CreateUser = "seed"
+            };
+            db.Area.AddRange(area1, area2);
+            db.SaveChanges();
+
+            // ===== Pond 範例資料 =====
+            var pond1 = new Pond
+            {
+                AreaSN = area1.AreaSN,
+                TenantSN = 1,
+                PondWidth = 10,
+                PondLength = 20,
+                PondArea = 200,
+                GPSX = "120.123500",
+                GPSY = "23.123500",
+                CreateUser = "seed"
+            };
+            var pond2 = new Pond
+            {
+                AreaSN = area2.AreaSN,
+                TenantSN = 1,
+                PondWidth = 15,
+                PondLength = 25,
+                PondArea = 375,
+                GPSX = "120.654500",
+                GPSY = "23.654500",
+                CreateUser = "seed"
+            };
+            db.Pond.AddRange(pond1, pond2);
+            db.SaveChanges();
+
+            // ===== FryRecord 範例資料 =====
+            var fry1 = new FryRecord
+            {
+                PondSN = pond1.PondSN,
+                FarmingNum = 1,
+                FarmingCode = "F001",
+                FrySN = 1,
+                FarmingDate = DateTime.Today.AddDays(-10),
+                FarmingPCS = 1000,
+                FryAge = 0.5m,
+                PondArea = pond1.PondArea,
+                FarmingDensity = 5,
+                ManageAccount = "admin",
+                TTL_Weight = 50m,
+                TTL_PCS = 950,
+                SurvivalRate = 95m,
+                CreateUser = "seed"
+            };
+            var fry2 = new FryRecord
+            {
+                PondSN = pond2.PondSN,
+                FarmingNum = 2,
+                FarmingCode = "F002",
+                FrySN = 2,
+                FarmingDate = DateTime.Today.AddDays(-5),
+                FarmingPCS = 2000,
+                FryAge = 0.6m,
+                PondArea = pond2.PondArea,
+                FarmingDensity = 5.3m,
+                ManageAccount = "admin",
+                TTL_Weight = 120m,
+                TTL_PCS = 1900,
+                SurvivalRate = 95m,
+                CreateUser = "seed"
+            };
+            db.FryRecord.AddRange(fry1, fry2);
+            db.SaveChanges();
+
+            Console.WriteLine("✅ Area、Pond、FryRecord 範例資料已建立完成！");
         }
     }
 }

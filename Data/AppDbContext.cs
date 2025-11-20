@@ -13,6 +13,10 @@ namespace ADAMS.Data
         public DbSet<Function> Function { get; set; }
         public DbSet<Tenant> Tenant { get; set; }
 
+        public DbSet<Area> Area { get; set; }
+        public DbSet<Pond> Pond { get; set; }
+        public DbSet<FryRecord> FryRecord { get; set; }
+
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
@@ -51,6 +55,19 @@ namespace ADAMS.Data
                 .WithMany(f => f.Authorizations)
                 .HasForeignKey(a => a.FunctionSN)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            b.Entity<Pond>()
+                .HasOne(p => p.Area)
+                .WithMany(a => a.Ponds)
+                .HasForeignKey(p => p.AreaSN)
+                .OnDelete(DeleteBehavior.Restrict); // 刪除 Area 不會 cascade 刪除 Pond
+
+            b.Entity<FryRecord>()
+                .HasOne(f => f.Pond)
+                .WithMany(p => p.FryRecords)
+                .HasForeignKey(f => f.PondSN)
+                .OnDelete(DeleteBehavior.Restrict); // 刪除 Pond 不會 cascade 刪除 FryRecord
+
         }
     }
 }

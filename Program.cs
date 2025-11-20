@@ -25,19 +25,19 @@ builder.Services.AddControllersWithViews();
 //builder.Services.AddControllersWithViews()
 //    .AddRazorOptions(options =>
 //    {
-//        // ³]©w Area ªº View ¸ô®|
+//        // ï¿½]ï¿½w Area ï¿½ï¿½ View ï¿½ï¿½ï¿½|
 //        options.ViewLocationFormats.Add("/Areas/{2}/Views/{1}/{0}.cshtml");
 //        options.ViewLocationFormats.Add("/Areas/{2}/Views/Shared/{0}.cshtml");
 //    });
 
 var app = builder.Build();
 
-//using (var scope = app.Services.CreateScope())
-//{
+// using (var scope = app.Services.CreateScope())
+// {
 //    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//    db.Database.Migrate();  // ¦Û°Ê°õ¦æ migrations
-//    DbSeeder.Seed(db, forceReset: true);  // ªì©l¤Æ¸ê®Æ®w»PºØ¤l¸ê®Æ
-//}
+//    db.Database.Migrate();  // ï¿½Û°Ê°ï¿½ï¿½ï¿½ migrations
+//    DbSeeder.Seed(db, forceReset: true);  // ï¿½ï¿½lï¿½Æ¸ï¿½Æ®wï¿½Pï¿½Ø¤lï¿½ï¿½ï¿½
+// }
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -54,7 +54,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Area ¸ô¥Ñ³]©w
+// Area ï¿½ï¿½ï¿½Ñ³]ï¿½w
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
@@ -69,7 +69,7 @@ static void RegisterRepositoriesFromAssembly(IServiceCollection services)
 {
     var assembly = typeof(Program).Assembly;
 
-    // ¦Û°Ê±½´y©Ò¦³¹ê§@ IRepository ªºÃþ§O
+    // ï¿½Û°Ê±ï¿½ï¿½yï¿½Ò¦ï¿½ï¿½ï¿½@ IRepository ï¿½ï¿½ï¿½ï¿½ï¿½O
     var repositoryTypes = assembly.GetTypes()
         .Where(t => t.IsClass && !t.IsAbstract)
         .Where(t => t.Name.EndsWith("Repository"))
@@ -85,7 +85,7 @@ static void RegisterRepositoriesFromAssembly(IServiceCollection services)
         services.AddScoped(type.Interface!, type.Implementation);
     }
 
-    // ¦Û°Ê±½´y©Ò¦³¹ê§@ IService ªºÃþ§O
+    // ï¿½Û°Ê±ï¿½ï¿½yï¿½Ò¦ï¿½ï¿½ï¿½@ IService ï¿½ï¿½ï¿½ï¿½ï¿½O
     var serviceTypes = assembly.GetTypes()
         .Where(t => t.IsClass && !t.IsAbstract)
         .Where(t => t.Name.EndsWith("Service"))
