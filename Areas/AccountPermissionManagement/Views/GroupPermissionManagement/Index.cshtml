@@ -1,0 +1,226 @@
+﻿@* Areas/AccountPermissionManagement/Views/GroupPermissionManagement/Index.cshtml *@
+@model ADAMS.Areas.AccountPermissionManagement.ViewModels.GroupPermissionManagement.GroupPermissionListViewModel
+@{
+    ViewData["Title"] = "群組權限管理";
+}
+
+<div class="container-fluid p-4" style="background-color: #FFFACD;">
+    <!-- 標題列 -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">@ViewData["Title"]</h4>
+        <a asp-action="Create" class="btn btn-primary">
+            新增群組
+        </a>
+    </div>
+
+    <!-- 成功/錯誤訊息 -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 篩選列 -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form asp-action="Index" method="get" class="row g-2 align-items-center">
+                <div class="row align-items-end">
+                        @if (Model.IsOperationCompany)
+                        {
+                            <div class="col-md-3">
+                                <label class="form-label">養殖戶：</label>
+                                <select name="tenantSN" class="form-select">
+                                    @foreach (var t in Model.TenantOptions)
+                                    {
+                                        <option value="@t.SN" selected="@(t.SN == Model.CurrentTenantSN)">
+                                            @t.TenantName
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-3">
+                                <label class="form-label">養殖戶：</label>
+                                <input type="text" class="form-control"
+                                       value="@Model.TenantOptions.First().TenantName" readonly />
+                                <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                            </div>
+                        }
+                    </div>
+              
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-sm btn-primary">搜尋</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 資料表格 -->
+    <div class="card">
+        <div class="card-body p-0">
+            @if (Model.GroupPermissions.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th>群組名稱</th>
+                                <th>使用者清單</th>
+                                <th>權限</th>
+                                <th>備註</th>
+                                <th style="width: 100px;">功能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (group, index) in Model.GroupPermissions.Select((f, i) => (f, i + 1 + (Model.Pagination.CurrentPage - 1) * Model.Pagination.PageSize)))
+                            {
+                                <tr>
+                                    <td class="text-center">@index</td>
+                                    <td>@group.Name</td>
+                                    <td>
+                                        <a asp-action="GetAccountListByGroup"
+                                           asp-route-id="@group.AccountGroupSN"
+                                           class="btn btn-info btn-sm">
+                                            查看
+                                        </a>
+                                    
+                                    <td>
+                                        <a asp-action="ViewPermissions"
+                                           asp-route-id="@group.AccountGroupSN"
+                                           class="btn btn-info btn-sm">
+                                            查看
+                                        </a>
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(group.Remark))
+                                        {
+                                            <button type="button" 
+                                                    class="btn btn-info btn-sm" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#remarkModal"
+                                                    data-remark="@group.Remark"
+                                                    data-name="@group.Name">
+                                                查看
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                     <td class="text-center">
+                                        @if (!string.Equals(group.Name, "Admin", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                           <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@group.AccountGroupSN"
+                                                   class="btn btn-warning btn-sm"
+                                                   title="修改">
+                                                    修改
+                                                </a>
+
+                                                <form asp-action="Delete"
+                                                      asp-route-id="@group.AccountGroupSN"
+                                                      method="post"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('確定要刪除群組「@group.Name」嗎？');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit"
+                                                            class="btn btn-danger btn-sm"
+                                                            title="刪除">
+                                                        刪除
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 共用分頁 - 只需一行 -->
+                <partial name="_Pagination" model="Model.Pagination" />
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <p class="text-muted">尚無權限群組資料</p>
+                    <a asp-action="Create" class="btn btn-primary">新增群組</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- 備註彈出視窗 Modal -->
+<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="remarkModalLabel">
+                    <i class="bi bi-pencil-square"></i> 備註內容
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <strong>群組名稱：</strong>
+                    <span id="remarkFarmerName"></span>
+                </div>
+                <hr />
+                <div style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;" id="remarkContent">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // 備註彈出視窗
+            $('#remarkModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var remark = button.data('remark');
+                var name = button.data('name');
+                
+                var modal = $(this);
+                modal.find('#remarkFarmerName').text(name);
+                modal.find('#remarkContent').text(remark);
+            });
+            
+        });
+    </script>
+}
+
+<style>
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .btn-group-sm > .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+</style>

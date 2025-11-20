@@ -29,6 +29,7 @@ builder.Services.AddControllersWithViews();
 //        options.ViewLocationFormats.Add("/Areas/{2}/Views/{1}/{0}.cshtml");
 //        options.ViewLocationFormats.Add("/Areas/{2}/Views/Shared/{0}.cshtml");
 //    });
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

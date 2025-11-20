@@ -1,0 +1,138 @@
+﻿@model ADAMS.Areas.AccountPermissionManagement.ViewModels.GroupPermissionManagement.GroupPermissionEditViewModel
+
+@{
+    ViewData["Title"] = Model.AccountGroupSN.HasValue ? "修改群組" : "新增群組";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<form asp-action="@(Model.AccountGroupSN.HasValue ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="AccountGroupSN" />
+    <input type="hidden" asp-for="TenantSN" />
+
+    <!-- (A) 顯示目前歸屬的養殖戶 -->
+    <div class="mb-3">
+        <label class="form-label">養殖戶：</label>
+        <span>@Model.TenantName</span>
+    </div>
+
+    <!-- (B) 群組名稱 -->
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <!-- 備註 -->
+    <div class="mb-3">
+        <label asp-for="Remark" class="form-label"></label>
+        <input asp-for="Remark" class="form-control" />
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+
+    <!-- (C)(D) 權限清單 -->
+    <div class="mb-3 p-3 border rounded" style="background-color: #fffbe6;">
+        <h5>權限設定</h5>
+        <hr />
+
+        @{
+            // 父選單（FLevel=1）
+            var parents = Model.Functions
+                .Where(f => f.FLevel == 1)
+                .OrderBy(f => f.Sort)
+                .ToList();
+        }
+
+        @foreach (var parent in parents)
+        {
+            //找出父選單在 Functions清單中的index
+            var parentIdx = Model.Functions.FindIndex(f => f.FunctionSN == parent.FunctionSN);
+
+            //父選單本身不勾選，只需要讓它進入 Functions 集合 -->
+            <input asp-for="Functions[parentIdx].FunctionSN" type="hidden" />
+            <input asp-for="Functions[parentIdx].CName" type="hidden" />
+            <input asp-for="Functions[parentIdx].FLevel" type="hidden" />
+            <input asp-for="Functions[parentIdx].UpperFunctionSN" type="hidden" />
+            <input asp-for="Functions[parentIdx].Sort" type="hidden" />
+           
+
+            var children = Model.Functions
+                .Where(f => f.UpperFunctionSN == parent.FunctionSN)
+                .OrderBy(f => f.Sort)
+                .ToList();
+
+            <div class="mb-1">
+                <strong>@parent.CName</strong>
+            </div>
+
+            <div class="mb-3 d-flex flex-wrap">
+                @foreach (var child in children)
+                {
+                    // 找出在 Functions清單中的index
+                    var idx = Model.Functions.FindIndex(f => f.FunctionSN == child.FunctionSN);
+
+                    <div class="form-check me-3 mb-1">
+                        <input asp-for="Functions[idx].IsChecked" class="form-check-input permission-checkbox" />
+                        <input asp-for="Functions[idx].FunctionSN" type="hidden" />
+                        <input asp-for="Functions[idx].CName" type="hidden" />
+                        <input asp-for="Functions[idx].FLevel" type="hidden" />
+                        <input asp-for="Functions[idx].UpperFunctionSN" type="hidden" />
+                        <input asp-for="Functions[idx].Sort" type="hidden" />
+                        <label class="form-check-label">
+                            @child.CName
+                        </label>
+                    </div>
+                }
+            </div>
+
+            <hr />
+        }
+    </div>
+
+    <!-- 按鈕列 -->
+    <div class="mt-3">
+        <button type="button" class="btn btn-secondary btn-sm me-2" id="btnSelectAll">全選</button>
+        <button type="button" class="btn btn-secondary btn-sm me-2" id="btnClearAll">取消</button>
+        <button type="submit" class="btn btn-primary btn-sm me-2">送出</button>
+        <a asp-action="Index" asp-route-tenantSN="@Model.TenantSN" class="btn btn-outline-secondary btn-sm">離開</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            var selectAllBtn = document.getElementById('btnSelectAll');
+            var clearAllBtn = document.getElementById('btnClearAll');
+
+            selectAllBtn.addEventListener('click', function () {
+                document.querySelectorAll('.permission-checkbox')
+                    .forEach(function (cb) { cb.checked = true; });
+            });
+
+            clearAllBtn.addEventListener('click', function () {
+                document.querySelectorAll('.permission-checkbox')
+                    .forEach(function (cb) { cb.checked = false; });
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,32 @@
+﻿@using ADAMS.Areas.AccountPermissionManagement.ViewModels.GroupPermissionManagement
+@model GroupPermissionAccountListViewModel
+<div class="container p-4">
+
+    <h4>查看使用者：@Model.UserName</h4>
+    <hr />
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-info">
+            <tr>
+                <th style="width:60px;">No</th>
+                <th>使用者帳號</th>
+                <th>使用者名稱</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Accounts)
+            {
+                <tr>
+                    <td>@a.AccountSN</td>
+                    <td>@a.AccountName</td>
+                    <td>@a.AccountName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @* <div class="text-end">
+        <button class="btn btn-secondary" onclick="window.close();">關閉</button>
+    </div> *@
+
+</div>
