@@ -1,0 +1,97 @@
+﻿@using ADAMS.Areas.Models
+@model PaginationInfo
+
+@if (Model.TotalPages >= 1)
+{
+    <div class="card-footer bg-warning-subtle">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <!-- 左邊：資料總筆數 -->
+            <div>
+                <small class="text-muted">資料總筆數：<strong>@Model.TotalCount</strong></small>
+            </div>
+
+            <!-- 右邊：分頁控制 -->
+            <div class="d-flex align-items-center gap-2">
+                <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+
+                    <!-- 保留所有搜索條件 - 動態產生 Hidden Input -->
+                    @foreach (var filter in Model.SearchFilters)
+                    {
+                        @if (!IsFilterEmpty(filter.Value))
+                        {
+                            <input type="hidden" name="@filter.Key" value="@filter.Value" />
+                        }
+                    }
+
+                    <!-- 每頁筆數 -->
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="form-label mb-0" style="font-size: 0.875rem;">每頁：</label>
+                        <select name="pageSize" class="form-select form-select-sm" style="width: 70px;" onchange="this.form.submit()">
+                            @foreach (var size in Model.PageSizeOptions)
+                            {
+                                if (size == Model.PageSize)
+                                {
+                                    <option value="@size" selected>@size</option>
+                                }
+                                else
+                                {
+                                    <option value="@size">@size</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <!-- 上一頁 -->
+                    <a class="btn btn-sm btn-outline-secondary @(Model.CurrentPage == 1 ? "disabled" : "")"
+                       asp-action="Index"
+                       asp-route-page="@(Math.Max(1, Model.CurrentPage - 1))"
+                       asp-route-pageSize="@Model.PageSize">
+                        ⬅ 上一頁
+                    </a>
+
+                    <!-- 頁碼跳轉 -->
+                    <div class="d-flex align-items-center gap-1">
+                        <label class="form-label mb-0" style="font-size: 0.875rem;">第</label>
+                        <select name="page" class="form-select form-select-sm" style="width: 70px;" onchange="this.form.submit()">
+                            @for (int i = 1; i <= Model.TotalPages; i++)
+                            {
+                                if (i == Model.CurrentPage)
+                                {
+                                    <option value="@i" selected>@i</option>
+                                }
+                                else
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            }
+                        </select>
+                        <label class="form-label mb-0" style="font-size: 0.875rem;">頁</label>
+                    </div>
+
+                    <!-- 下一頁 -->
+                    <a class="btn btn-sm btn-outline-secondary @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")"
+                       asp-action="Index"
+                       asp-route-page="@(Math.Min(Model.TotalPages, Model.CurrentPage + 1))"
+                       asp-route-pageSize="@Model.PageSize">
+                        下一頁 ➡
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    /// <summary>
+    /// 判斷搜索條件是否為空
+    /// </summary>
+    private bool IsFilterEmpty(object value)
+    {
+        if (value == null) return true;
+        if (value is string str) return string.IsNullOrEmpty(str);
+        if (value is int intVal) return intVal == 0;
+        if (value is DateTime dateVal) return dateVal == DateTime.MinValue;
+        return false;
+    }
+}
