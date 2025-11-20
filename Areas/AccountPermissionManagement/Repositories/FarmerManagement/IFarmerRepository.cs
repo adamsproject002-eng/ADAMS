@@ -6,6 +6,7 @@ namespace ADAMS.Areas.AccountPermissionManagement.Repositories.FarmerManagement
     {
         Task<(List<Tenant> Data, int TotalCount)> GetPagedListAsync(
             string? statusFilter,
+            string? keyword,
             int page,
             int pageSize);
 

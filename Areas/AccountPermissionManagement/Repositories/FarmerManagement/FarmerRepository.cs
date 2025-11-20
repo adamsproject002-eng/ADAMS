@@ -15,6 +15,7 @@ namespace ADAMS.Areas.AccountPermissionManagement.Repositories.FarmerManagement
 
         public async Task<(List<Tenant> Data, int TotalCount)> GetPagedListAsync(
             string? statusFilter,
+            string? keyword,
             int page,
             int pageSize)
         {
@@ -31,6 +32,17 @@ namespace ADAMS.Areas.AccountPermissionManagement.Repositories.FarmerManagement
                 {
                     query = query.Where(t => !t.IsEnable);
                 }
+            }
+            //關鍵字篩選
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                query = query.Where(x =>
+                    EF.Functions.Like(x.TenantNum, $"%{keyword}%") ||
+                    EF.Functions.Like(x.TenantName, $"%{keyword}%") ||
+                    EF.Functions.Like(x.ResponName ?? "", $"%{keyword}%") ||
+                    EF.Functions.Like(x.ResponPhone ?? "", $"%{keyword}%") ||
+                    EF.Functions.Like(x.ResponEmail ?? "", $"%{keyword}%")
+                );
             }
 
             var totalCount = await query.CountAsync();

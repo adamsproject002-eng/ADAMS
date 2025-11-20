@@ -25,11 +25,11 @@ namespace ADAMS.Areas.AccountPermissionManagement.Controllers
         /// <summary>
         /// 養殖戶管理列表頁
         /// </summary>
-        public async Task<IActionResult> Index(string? statusFilter, int page = 1 , int pageSize = 10 )
+        public async Task<IActionResult> Index(string? statusFilter, string? Keyword, int page = 1, int pageSize = 10)
         {
             try
             {
-                var viewModel = await _farmerService.GetPagedListAsync(statusFilter, page, pageSize);
+                var viewModel = await _farmerService.GetPagedListAsync(statusFilter, Keyword, page, pageSize);
                 return View(viewModel);
             }
             catch (Exception ex)

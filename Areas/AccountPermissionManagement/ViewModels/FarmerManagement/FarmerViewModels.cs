@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ADAMS.Areas.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ADAMS.Areas.AccountPermissionManagement.ViewModels.FarmerManagement
 {
@@ -6,11 +7,14 @@ namespace ADAMS.Areas.AccountPermissionManagement.ViewModels.FarmerManagement
     public class FarmerListViewModel
     {
         public List<FarmerViewModel> Farmers { get; set; } = new();
+        public PaginationInfo Pagination { get; set; } = new();
         public int CurrentPage { get; set; }
         public int PageSize { get; set; }
         public int TotalCount { get; set; }
         public int TotalPages { get; set; }
         public string? StatusFilter { get; set; }
+
+        public string? Keyword { get; set; }
 
         public bool HasPreviousPage => CurrentPage > 1;
         public bool HasNextPage => CurrentPage < TotalPages;

@@ -1,9 +1,10 @@
 ﻿using ADAMS.Areas.AccountPermissionManagement.Repositories.FarmerManagement;
 using ADAMS.Areas.AccountPermissionManagement.ViewModels.FarmerManagement;
-using ADAMS.Models;
-using ADAMS.Data;
-using Microsoft.EntityFrameworkCore;
+using ADAMS.Areas.Models;
 using ADAMS.Controllers;
+using ADAMS.Data;
+using ADAMS.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ADAMS.Areas.AccountPermissionManagement.Services.FarmerManagement
 {
@@ -25,11 +26,12 @@ namespace ADAMS.Areas.AccountPermissionManagement.Services.FarmerManagement
 
         public async Task<FarmerListViewModel> GetPagedListAsync(
             string? statusFilter,
+            string? keyword,
             int page,
             int pageSize)
         {
             var (data, totalCount) = await _farmerRepo.GetPagedListAsync(
-                statusFilter, page, pageSize);
+                statusFilter, keyword, page, pageSize);
 
             var farmers = new List<FarmerViewModel>();
 
@@ -52,14 +54,31 @@ namespace ADAMS.Areas.AccountPermissionManagement.Services.FarmerManagement
                 });
             }
 
-            return new FarmerListViewModel
+            // 建立分頁資訊，包含搜索條件
+            var pagination = new PaginationInfo
             {
-                Farmers = farmers,
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalCount = totalCount,
                 TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
-                StatusFilter = statusFilter
+                SearchFilters = new Dictionary<string, object>
+                {
+                    { "statusFilter", statusFilter ?? "" },
+                    { "keyword", keyword ?? "" }
+                }
+            };
+
+
+            return new FarmerListViewModel
+            {
+                Farmers = farmers,
+                Pagination = pagination,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                StatusFilter = statusFilter,
+                Keyword = keyword,
             };
         }
 

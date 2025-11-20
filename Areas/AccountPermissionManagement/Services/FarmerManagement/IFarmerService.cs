@@ -4,7 +4,7 @@ namespace ADAMS.Areas.AccountPermissionManagement.Services.FarmerManagement
 {
     public interface IFarmerService
     {
-        Task<FarmerListViewModel> GetPagedListAsync(string? statusFilter, int page, int pageSize);
+        Task<FarmerListViewModel> GetPagedListAsync(string? statusFilter, string? Keyword, int page, int pageSize);
 
         Task<FarmerDetailViewModel?> GetDetailAsync(int id);
 
