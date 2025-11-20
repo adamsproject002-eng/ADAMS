@@ -7,14 +7,14 @@ namespace ADAMS.Areas.OperationManagement.Controllers
 {
     [Area("OperationManagement")]
     [FunctionPermission(21)]
-    public class FryRecordController : Controller
+    public class StockingRecordQueryController  : Controller
     {
         private readonly IFryRecordService _fryRecordService;
-        private readonly ILogger<FryRecordController> _logger;
+        private readonly ILogger<StockingRecordQueryController > _logger;
 
-        public FryRecordController(
+        public StockingRecordQueryController (
             IFryRecordService fryRecordService,
-            ILogger<FryRecordController> logger)
+            ILogger<StockingRecordQueryController > logger)
         {
             _fryRecordService = fryRecordService;
             _logger = logger;
