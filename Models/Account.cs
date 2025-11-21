@@ -28,6 +28,9 @@ namespace ADAMS.Models
         public AccountGroup? AccGroup { get; set; }
 
         [StringLength(50)]
+        public string? RealName { get; set; } // 姓名
+
+        [StringLength(50)]
         public string? Phone { get; set; } // 電話，可空
 
         [StringLength(50)]
