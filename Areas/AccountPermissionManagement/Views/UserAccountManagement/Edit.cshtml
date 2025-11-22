@@ -1,0 +1,191 @@
+﻿@model ADAMS.Areas.AccountPermissionManagement.ViewModels.UserAccountManagement.UserAccountEditViewModel
+
+@{
+    ViewData["Title"] = Model.AccountSN.HasValue ? "修改使用者" : "新增使用者";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="@(Model.AccountSN.HasValue ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="AccountSN" />
+    <input type="hidden" asp-for="IsDefaultAccount" />
+
+    <!-- 養殖戶 -->
+    <div class="mb-3">
+        <label class="form-label">養殖戶：</label>
+
+        @* 營運公司「新增」時可以切換養殖戶，其它情況只顯示文字 *@
+        @if (Model.IsOperationCompany && !Model.AccountSN.HasValue)
+        {
+            <select asp-for="TenantSN"
+                    id="TenantSN"
+                    class="form-select"
+                    asp-items="@(new SelectList(Model.TenantOptions, "SN", "TenantName", Model.TenantSN))">
+                <option value="">請選擇養殖戶</option>
+            </select>
+        }
+        else
+        {
+            <span>@Model.TenantName</span>
+            <input type="hidden" asp-for="TenantSN" />
+        }
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="AccountName" class="form-label"></label>
+            @if (Model.IsDefaultAccount)
+            {
+                <input asp-for="AccountName" class="form-control" readonly />
+            }
+            else
+            {
+                <input asp-for="AccountName" class="form-control" />
+            }
+            <span asp-validation-for="AccountName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+            @if (Model.AccountSN.HasValue)
+            {
+                <small class="text-muted">若不變更密碼，請留空。</small>
+            }
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="ConfirmPassword" class="form-label"></label>
+            <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="RealName" class="form-label"></label>
+            <input asp-for="RealName" class="form-control" />
+            <span asp-validation-for="RealName" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <!-- 帳號群組（唯一的一個下拉） -->
+        <div class="col-md-4">
+            <label asp-for="AccGroupSN" class="form-label"></label>
+            <select asp-for="AccGroupSN"
+                    id="AccGroupSN"
+                    class="form-select"
+                    asp-items="@(new SelectList(Model.AccountGroupOptions, "AccountGroupSN", "Name", Model.AccGroupSN))">
+                <option value="">請選擇帳號群組</option>
+            </select>
+            <span asp-validation-for="AccGroupSN" class="text-danger"></span>
+        </div>
+
+        <!-- 帳號狀態 -->
+        <div class="col-md-4">
+            <label asp-for="IsEnable" class="form-label"></label>
+            @if (Model.IsDefaultAccount)
+            {
+                <div class="form-check ms-2">
+                    <input asp-for="IsEnable" class="form-check-input" type="checkbox" disabled />
+                    <label class="form-check-label">預設帳號固定啟用</label>
+                </div>
+            }
+            else
+            {
+                <div class="form-check ms-2">
+                    <input asp-for="IsEnable" class="form-check-input" />
+                    <label class="form-check-label" for="IsEnable">啟用</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Remark" class="form-label"></label>
+        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-sm me-2">送出</button>
+        <a asp-action="Index" asp-route-tenantSN="@Model.TenantSN" class="btn btn-outline-secondary btn-sm">離開</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const tenantSelect = document.getElementById('TenantSN');
+            const groupSelect = document.getElementById('AccGroupSN');
+
+            // 非營運帳號，沒有養殖戶下拉就不用綁事件
+            if (!tenantSelect || !groupSelect) return;
+
+            tenantSelect.addEventListener('change', function () {
+                const tenantSN = this.value;
+
+                // 清空原本的群組選項
+                groupSelect.innerHTML = '';
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.textContent = '請選擇帳號群組';
+                groupSelect.appendChild(defaultOpt);
+
+                if (!tenantSN) {
+                    return;
+                }
+
+                // 取得新的群組資料
+                fetch('@Url.Action("GetAccountGroups", "UserAccountManagement", new { area = "AccountPermissionManagement" })?tenantSN=' + tenantSN)
+                    .then(response => response.json())
+                    .then(data => {
+                        // data 會是像 [{ accountGroupSN: 1, name: "Admin" }, ...]
+                        data.forEach(g => {
+                            const opt = document.createElement('option');
+                            opt.value = g.accountGroupSN;
+                            opt.textContent = g.name;
+                            groupSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(err => {
+                        console.error('載入帳號群組失敗', err);
+                        alert('載入帳號群組失敗，請稍後再試');
+                    });
+            });
+        })();
+    </script>
+}

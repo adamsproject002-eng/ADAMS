@@ -1,0 +1,232 @@
+﻿@model ADAMS.Areas.AccountPermissionManagement.ViewModels.UserAccountManagement.UserAccountListViewModel
+
+@{
+    ViewData["Title"] = "使用者帳號管理";
+}
+
+<div class="container-fluid p-4" style="background-color: #FFFACD;">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">@ViewData["Title"]</h4>
+        <a asp-action="Create"
+           asp-route-tenantSN="@Model.CurrentTenantSN"
+           class="btn btn-primary">
+            新增使用者
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 篩選列 -->
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form asp-action="Index" method="get" class="row g-2 align-items-center">
+                <div class="row align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">養殖戶：</label>
+                        @if (Model.IsOperationCompany)
+                        {
+                            <select name="tenantSN" class="form-select">
+                                @foreach (var t in Model.TenantOptions)
+                                {
+                                    <option value="@t.SN" selected="@(t.SN == Model.CurrentTenantSN)">
+                                        @t.TenantName
+                                    </option>
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <input type="text" class="form-control" value="@Model.TenantOptions.First().TenantName" readonly />
+                            <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                        }
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">關鍵字：</label>
+                        <input type="text" name="keyword" value="@Model.Keyword" class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">啟用狀態：</label>
+                        <select name="status" class="form-select">
+                            <option value="0" selected="@(Model.Status == 0)">全部</option>
+                            <option value="1" selected="@(Model.Status == 1)">啟用</option>
+                            <option value="2" selected="@(Model.Status == 2)">停用</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-sm btn-primary mt-3">搜尋</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 資料表格 -->
+    <div class="card">
+        <div class="card-body p-0">
+            @if (Model.Accounts.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">No</th>
+                                <th>帳號</th>
+                                <th>帳號群組</th>
+                                <th>姓名</th>
+                                <th>Email</th>
+                                <th>狀態</th>
+                                <th>備註</th>
+                                <th style="width: 180px;">功能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (item, index) in Model.Accounts.Select((a, i) => (a, i + 1 + (Model.Pagination.CurrentPage - 1) * Model.Pagination.PageSize)))
+                            {
+                                <tr>
+                                    <td class="text-center">@index</td>
+                                    <td>@item.AccountName</td>
+                                    <td>@item.GroupName</td>
+                                    <td>@item.RealName</td>
+                                    <td>@item.Email</td>
+                                    <td>@(item.IsEnable ? "啟用" : "停用")</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.Remark))
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-info btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#remarkModal"
+                                                    data-remark="@item.Remark"
+                                                    data-name="@item.AccountName">
+                                                查看
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (item.IsDefaultAccount)
+                                        {
+                                            <!-- 預設帳號：只能修改 -->
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@item.AccountSN"
+                                                   class="btn btn-warning btn-sm">
+                                                    修改
+                                                </a>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@item.AccountSN"
+                                                   class="btn btn-warning btn-sm">
+                                                    修改
+                                                </a>
+
+                                                <form asp-action="ToggleEnable"
+                                                      asp-route-id="@item.AccountSN"
+                                                      asp-route-tenantSN="@Model.CurrentTenantSN"
+                                                      method="post"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('確定要@(item.IsEnable ? "停用" : "啟用") 帳號「@item.AccountName」嗎？');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit"
+                                                            class="btn btn-sm @(item.IsEnable ? "btn-danger" : "btn-success")">
+                                                        @(item.IsEnable ? "停用" : "啟用")
+                                                    </button>
+                                                </form>
+
+                                                <form asp-action="Delete"
+                                                      asp-route-id="@item.AccountSN"
+                                                      asp-route-tenantSN="@Model.CurrentTenantSN"
+                                                      method="post"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('確定要刪除帳號「@item.AccountName」嗎？');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit"
+                                                            class="btn btn-danger btn-sm">
+                                                        刪除
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <partial name="_Pagination" model="Model.Pagination" />
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <p class="text-muted">尚無使用者帳號資料</p>
+                    <a asp-action="Create" class="btn btn-primary">新增帳號</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- 備註 Modal -->
+<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="remarkModalLabel">備註內容</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <strong>帳號：</strong>
+                    <span id="remarkAccountName"></span>
+                </div>
+                <hr />
+                <div id="remarkContent" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var remarkModal = document.getElementById('remarkModal');
+            if (remarkModal) {
+                remarkModal.addEventListener('show.bs.modal', function (event) {
+                    var button = event.relatedTarget;
+                    var remark = button.getAttribute('data-remark');
+                    var name = button.getAttribute('data-name');
+
+                    document.getElementById('remarkAccountName').textContent = name;
+                    document.getElementById('remarkContent').textContent = remark;
+                });
+            }
+        })();
+    </script>
+}
