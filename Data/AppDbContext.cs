@@ -16,6 +16,8 @@ namespace ADAMS.Data
         public DbSet<Area> Area { get; set; }
         public DbSet<Pond> Pond { get; set; }
         public DbSet<FryRecord> FryRecord { get; set; }
+        public DbSet<Supplier> Supplier { get; set; } 
+        public DbSet<Fry> Fry { get; set; }
 
         protected override void OnModelCreating(ModelBuilder b)
         {

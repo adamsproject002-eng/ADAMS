@@ -1,156 +1,247 @@
-﻿@model ADAMS.Areas.OperationManagement.ViewModels.FryRecords.FryRecordCreateViewModel
 @{
-    ViewData["Title"] = "新增養殖戶";
+    ViewData["Title"] = "新增放苗紀錄";
 }
 
-<div class="container-fluid p-4">
+<div class="container p-4">
     <h4 class="mb-4">@ViewData["Title"]</h4>
 
-    @* <form asp-action="Create" method="post">
-        @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+    <form id="CreateForm" class="row g-3" style="background-color: #FFFACD;">
+        <input type="hidden" name="TenantSN" value="@ViewBag.TenantSN" />
 
-        <!-- 養殖戶資料 -->
-        <div class="card mb-3">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">養殖戶資料</h5>
+        <div class="col-6">
+            <!-- 場區 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">場區：</label>
+                <div class="col-sm-6">
+                    <select id="AreaSelect" class="form-select form-select-sm">
+                        <option value="">請選擇</option>
+                    </select>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">
-                        <span class="text-danger">*</span> 養殖戶編號：
-                    </label>
-                    <div class="col-sm-4">
-                        <input asp-for="TenantNum" class="form-control" placeholder="請輸入養殖戶編號" />
-                        <span asp-validation-for="TenantNum" class="text-danger small"></span>
-                    </div>
+
+            <!-- 池號 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">池號：</label>
+                <div class="col-sm-6">
+                    <select id="PondSelect" class="form-select form-select-sm">
+                        <option value="">請選擇</option>
+                    </select>
                 </div>
+            </div>
 
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">
-                        <span class="text-danger">*</span> 養殖戶名稱：
-                    </label>
-                    <div class="col-sm-10">
-                        <input asp-for="TenantName" class="form-control" placeholder="請輸入養殖戶名稱" />
-                        <span asp-validation-for="TenantName" class="text-danger small"></span>
-                    </div>
+            <!-- 放養碼 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">放養碼：</label>
+                <div class="col-sm-6">
+                    <input id="FarmingCode" class="form-control" readonly />
                 </div>
+            </div>
 
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">養殖戶地址：</label>
-                    <div class="col-sm-10">
-                        <input asp-for="TenantAddr" class="form-control" placeholder="請輸入養殖戶地址" />
-                        <span asp-validation-for="TenantAddr" class="text-danger small"></span>
-                    </div>
+            <!-- 魚苗資料 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">魚苗資料：</label>
+                <div class="col-sm-6">
+                    <select id="FryNameSelect" class="form-select form-select-sm">
+                        <option value="">請選擇</option>
+                    </select>
                 </div>
+            </div>
 
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">負責人姓名：</label>
-                    <div class="col-sm-4">
-                        <input asp-for="ResponName" class="form-control" placeholder="請輸入負責人姓名" />
-                        <span asp-validation-for="ResponName" class="text-danger small"></span>
-                    </div>
-
-                    <label class="col-sm-2 col-form-label text-end">負責人電話：</label>
-                    <div class="col-sm-4">
-                        <input asp-for="ResponPhone" class="form-control" placeholder="請輸入負責人電話" />
-                        <span asp-validation-for="ResponPhone" class="text-danger small"></span>
-                    </div>
+            <!-- 種類（自動帶入） -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">種類：</label>
+                <div class="col-sm-6">
+                    <input id="FVName" class="form-control" readonly />
                 </div>
+            </div>
 
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">負責人Email：</label>
-                    <div class="col-sm-10">
-                        <input asp-for="ResponEmail" type="email" class="form-control" placeholder="請輸入負責人Email" />
-                        <span asp-validation-for="ResponEmail" class="text-danger small"></span>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">備註：</label>
-                    <div class="col-sm-10">
-                        <textarea asp-for="Remark" class="form-control" rows="3" placeholder="請輸入備註"></textarea>
-                        <span asp-validation-for="Remark" class="text-danger small"></span>
-                    </div>
+            <!-- 苗場來源（自動帶入） -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">苗場來源：</label>
+                <div class="col-sm-6">
+                    <input id="SupplierName" class="form-control" readonly />
                 </div>
             </div>
         </div>
 
-        <!-- 註冊帳號 -->
-        <div class="card mb-3">
-            <div class="card-header bg-light">
-                <h5 class="mb-0">註冊帳號</h5>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">
-                        <span class="text-danger">*</span> 帳號：
-                    </label>
-                    <div class="col-sm-4">
-                        <input asp-for="AccountName" class="form-control" placeholder="請輸入帳號" />
-                        <span asp-validation-for="AccountName" class="text-danger small"></span>
-                    </div>
-
-                    <label class="col-sm-2 col-form-label text-end">
-                        <span class="text-danger">*</span> 密碼：
-                    </label>
-                    <div class="col-sm-4">
-                        <input asp-for="Password" type="password" class="form-control" placeholder="請輸入密碼" />
-                        <span asp-validation-for="Password" class="text-danger small"></span>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">電話：</label>
-                    <div class="col-sm-4">
-                        <input asp-for="AccountPhone" class="form-control" placeholder="請輸入電話" />
-                        <span asp-validation-for="AccountPhone" class="text-danger small"></span>
-                    </div>
-
-                    <label class="col-sm-2 col-form-label text-end">
-                        <span class="text-danger">*</span> 確認密碼：
-                    </label>
-                    <div class="col-sm-4">
-                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="請再次輸入密碼" />
-                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">Email：</label>
-                    <div class="col-sm-4">
-                        <input asp-for="AccountEmail" type="email" class="form-control" placeholder="請輸入Email" />
-                        <span asp-validation-for="AccountEmail" class="text-danger small"></span>
-                    </div>
-
-                    <label class="col-sm-2 col-form-label text-end">帳號狀態：</label>
-                    <div class="col-sm-4">
-                        <select asp-for="AccountIsEnable" class="form-select">
-                            <option value="true">啟用</option>
-                            <option value="false">停用</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <label class="col-sm-2 col-form-label text-end">備註：</label>
-                    <div class="col-sm-10">
-                        <textarea asp-for="AccountRemark" class="form-control" rows="2" placeholder="請輸入備註"></textarea>
-                    </div>
+        <div class="col-6">
+            <!-- 尾數 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">尾數 (pcs)：</label>
+                <div class="col-sm-6">
+                    <input id="FarmingPCS" class="form-control" type="number" min="0" step="1" />
                 </div>
             </div>
+
+            <!-- 苗齡 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">苗齡 (克/尾)：</label>
+                <div class="col-sm-6">
+                    <input id="FryAge" class="form-control" type="number" step="0.01" min="0" />
+                </div>
+            </div>
+
+            <!-- 面積 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">面積 (m²)：</label>
+                <div class="col-sm-6">
+                    <input id="PondArea" class="form-control" type="number" step="0.01" min="0" />
+                </div>
+            </div>
+
+            <!-- 放養密度 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">放養密度：</label>
+                <div class="col-sm-6">
+                    <input id="FarmingDensity" class="form-control" type="number" step="0.01" min="0" readonly />
+                </div>
+            </div>
+
+            <!-- 放苗日期 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">放苗日期：</label>
+                <div class="col-sm-6">
+                    <input id="FarmingDate" class="form-control" type="date" />
+                </div>
+            </div>
+
+            <!-- 管理員 -->
+            <div class="mb-3 row align-items-center">
+                <label class="col-sm-4 col-form-label text-end">管理員：</label>
+                <div class="col-sm-6">
+                    <select id="ManageAccountSelect" class="form-select form-select-sm">
+                        <option value="">請選擇</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 備註 -->
+        <div class="col-12">
+            <label class="form-label">備註：</label>
+            <textarea id="Remark" class="form-control" rows="2"></textarea>
         </div>
 
         <!-- 按鈕 -->
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary px-4">儲存</button>
-            <a asp-action="Index" class="btn btn-secondary px-4">取消</a>
+        <div class="col-12 text-center mt-3">
+            <button type="submit" class="btn btn-primary px-4 me-3">確定</button>
+            <a href="/OperationManagement/StockingRecordQuery/Index" class="btn btn-secondary px-4">取消</a>
         </div>
-    </form> *@
+    </form>
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const AreaSelect = document.getElementById('AreaSelect');
+            const PondSelect = document.getElementById('PondSelect');
+            const FryNameSelect = document.getElementById('FryNameSelect');
+            const ManageAccountSelect = document.getElementById('ManageAccountSelect');
+            const FVName = document.getElementById('FVName');
+            const SupplierName = document.getElementById('SupplierName');
+            const FarmingPCS = document.getElementById('FarmingPCS');
+            const PondArea = document.getElementById('PondArea');
+            const FarmingDensity = document.getElementById('FarmingDensity');
+            let FarmingNum = 1;
+
+            // 從 ViewBag 拿資料
+            const AreaPondDropList = @Html.Raw(Json.Serialize(ViewBag.AreaPondDropList));
+            const FrySNDropList = @Html.Raw(Json.Serialize(ViewBag.FrySNDropList));
+            const ManageAccountList = @Html.Raw(Json.Serialize(ViewBag.ManageAccountList));
+            @* console.log(AreaPondDropList, ManageAccountList); *@
+
+            // 初始化場區
+            Object.keys(AreaPondDropList).forEach(area => {
+                AreaSelect.add(new Option(area, area));
+            });
+
+            // 初始化ManageAccount
+            ManageAccountList.forEach(manageAccount => {
+                ManageAccountSelect.add(new Option(manageAccount, manageAccount));
+            });
+
+            // 場區變動 → 更新池號
+            AreaSelect.addEventListener('change', updatePonds);
+            PondSelect.addEventListener('change', updateFarmingCode);
+
+            function updatePonds() {
+                PondSelect.innerHTML = '<option value="">請選擇</option>';
+                const ponds = AreaPondDropList[AreaSelect.value] || [];
+                ponds.forEach(p => PondSelect.add(new Option(p, p)));
+                updateFarmingCode();
+            }
+
+            function updateFarmingCode() {
+                if (!AreaSelect.value || !PondSelect.value) return;
+                fetch(`/OperationManagement/StockingRecordQuery/GetNextFarmingNum?areaName=${encodeURIComponent(AreaSelect.value)}&pondSN=${PondSelect.value}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('FarmingCode').value = data.FarmingCode;
+                        FarmingNum = data.FarmingNum || 1;
+                    })
+                    .catch(err => console.error(err));
+            }
+
+            // 初始化魚苗下拉選單
+            FrySNDropList.forEach(f => FryNameSelect.add(new Option(f.FryName, f.FrySN)));
+
+            // 選擇魚苗 → 自動帶出 FVName & SupplierName
+            FryNameSelect.addEventListener('change', () => {
+                const selectedSN = parseInt(FryNameSelect.value);
+                const fry = FrySNDropList.find(f => f.FrySN === selectedSN);
+                FVName.value = fry ? fry.FVName : '';
+                SupplierName.value = fry ? fry.SupplierName : '';
+            });
+
+            // 自動計算放養密度
+            function UpdateDensity() {
+                const pcs = parseFloat(FarmingPCS.value) || 0;
+                const area = parseFloat(PondArea.value) || 0;
+                FarmingDensity.value = pcs > 0 && area > 0 ? (pcs / area).toFixed(2) : '';
+            }
+            FarmingPCS.addEventListener('input', UpdateDensity);
+            PondArea.addEventListener('input', UpdateDensity);
+
+            // 送出表單
+            document.getElementById('CreateForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const model = {
+                    TenantSN: Number(document.querySelector('[name="TenantSN"]').value),
+                    AreaName: AreaSelect.value,
+                    PondSN: Number(PondSelect.value),
+                    FarmingCode: document.getElementById('FarmingCode').value,
+                    FarmingDate: document.getElementById('FarmingDate').value,
+                    FarmingPCS: Number(FarmingPCS.value),
+                    FryAge: Number(document.getElementById('FryAge').value),
+                    PondArea: Number(PondArea.value),
+                    FarmingDensity: Number(FarmingDensity.value),
+                    Remark: document.getElementById('Remark').value,
+                    FVName: FVName.value,
+                    SupplierName: SupplierName.value,
+                    FrySN: Number(FryNameSelect.value),
+                    FarmingNum: Number(FarmingNum),
+                    CreateUser: "@ViewBag.CreateUser",
+                    ManagerAccount: ManageAccountSelect.value
+                };
+
+                fetch('/OperationManagement/StockingRecordQuery/CreateJson', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(model)
+                })
+                    .then(res => res.json())
+                    .then(res => {
+                        console.log(res);
+                        if (res.success) {
+                            console.log(res);
+                            window.location.href = '/OperationManagement/StockingRecordQuery/Index';
+                        } else {
+                            @* console.log(res); *@
+                            alert(res.Message);
+                        }
+                    });
+            });
+        });
+    </script>
 }

@@ -4,6 +4,7 @@ using ADAMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ADAMS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251121150030_AddFryRecordPondRelation-2")]
+    partial class AddFryRecordPondRelation2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,71 +260,6 @@ namespace ADAMS.Migrations
                     b.ToTable("Authorization");
                 });
 
-            modelBuilder.Entity("ADAMS.Models.Fry", b =>
-                {
-                    b.Property<int>("FrySN")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FrySN"));
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUser")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeleteUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("FVName")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("FryName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifyUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Remark")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("SupplierSN")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantSN")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UnitName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("FrySN");
-
-                    b.HasIndex("SupplierSN");
-
-                    b.ToTable("Fry");
-                });
-
             modelBuilder.Entity("ADAMS.Models.FryRecord", b =>
                 {
                     b.Property<int>("FryRecordSN")
@@ -403,8 +341,6 @@ namespace ADAMS.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("FryRecordSN");
-
-                    b.HasIndex("FrySN");
 
                     b.HasIndex("PondSN");
 
@@ -514,72 +450,6 @@ namespace ADAMS.Migrations
                     b.HasIndex("AreaSN");
 
                     b.ToTable("Pond");
-                });
-
-            modelBuilder.Entity("ADAMS.Models.Supplier", b =>
-                {
-                    b.Property<int>("SupplierSN")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SupplierSN"));
-
-                    b.Property<string>("ContactName")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ContactPhone")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUser")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeleteUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifyUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Remark")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("SupplierNum")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<int>("SupplierType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TenantSN")
-                        .HasColumnType("int");
-
-                    b.HasKey("SupplierSN");
-
-                    b.ToTable("Supplier");
                 });
 
             modelBuilder.Entity("ADAMS.Models.Tenant", b =>
@@ -696,32 +566,13 @@ namespace ADAMS.Migrations
                     b.Navigation("Function");
                 });
 
-            modelBuilder.Entity("ADAMS.Models.Fry", b =>
-                {
-                    b.HasOne("ADAMS.Models.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierSN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-                });
-
             modelBuilder.Entity("ADAMS.Models.FryRecord", b =>
                 {
-                    b.HasOne("ADAMS.Models.Fry", "Fry")
-                        .WithMany()
-                        .HasForeignKey("FrySN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ADAMS.Models.Pond", "Pond")
                         .WithMany("FryRecords")
                         .HasForeignKey("PondSN")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Fry");
 
                     b.Navigation("Pond");
                 });

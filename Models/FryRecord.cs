@@ -66,16 +66,27 @@ namespace ADAMS.Models
         [StringLength(50)]
         public string CreateUser { get; set; } = string.Empty;
 
-        public DateTime? ModityTime { get; set; }
+        public DateTime? ModifyTime { get; set; }
         [StringLength(50)]
         public string? ModifyUser { get; set; }
 
         public DateTime? DeleteTime { get; set; }
         [StringLength(50)]
         public string? DeleteUser { get; set; }
+        // ===== 新增欄位 =====
+        [NotMapped]
+        [Display(Name = "種類")]
+        public string? FryType { get; set; }
+
+        [NotMapped]
+        [Display(Name = "苗場來源")]
+        public string? FrySource { get; set; }
 
         // 導覽屬性
         [ForeignKey("PondSN")]
         public Pond Pond { get; set; } = null!;
+
+        [ForeignKey("FrySN")]
+        public Fry Fry { get; set; } = null!;
     }
 }

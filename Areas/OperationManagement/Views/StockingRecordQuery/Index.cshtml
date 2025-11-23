@@ -1,6 +1,4 @@
-﻿@* Areas/OperationManagement/Views/FryRecord/Index.cshtml *@
-@model ADAMS.Areas.OperationManagement.ViewModels.FryRecords.FryRecordListViewModel
-@{
+﻿@{
     ViewData["Title"] = "放苗作業紀錄";
 }
 
@@ -8,63 +6,40 @@
     <!-- 標題列 -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0">@ViewData["Title"]</h4>
-        <a asp-action="Create" class="btn btn-primary">新增放苗作業紀錄</a>
+        <a href="/OperationManagement/StockingRecordQuery/Create" class="btn btn-primary">新增放苗作業紀錄</a>
     </div>
 
     <!-- 成功/錯誤訊息 -->
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["ErrorMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
+    <div id="AlertContainer"></div>
 
     <!-- 篩選列 -->
     <div class="card mb-3">
-        <div class="card-body py-2">
-            <form asp-action="Index" method="get" class="row g-2 align-items-center">
-
+        <div class="col-auto d-flex align-items-center gap-3">
+            <form id="FilterForm" class="row g-2 align-items-center gap-4">
                 <!-- 場區 -->
                 <div class="col-auto">
                     <label class="col-form-label">場區:</label>
                 </div>
                 <div class="col-auto">
-                    <select name="areaSN" class="form-select form-select-sm" style="width: 150px;">
-                        <option value="">全部</option>
-                        @foreach (var area in ViewBag.Areas as List<ADAMS.Areas.OperationManagement.ViewModels.FryRecords.FryRecordDropdownDto>)
-                        {
-                            <option value="@area.Value" selected="@(area.Value == Model.AreaSN ? "selected" : null)">
-                                @area.Label
-                            </option>
-
-                        }
+                    <select id="AreaSelect" class="form-select form-select-sm" style="width: 150px;">
+                        <!-- 選項將由 JS 動態生成 -->
                     </select>
                 </div>
-
-                <!-- 魚池 -->
-                <div class="col-auto">
-                    <label class="col-form-label">魚池:</label>
-                </div>
-                <div class="col-auto">
-                    <input type="text" name="pondSN" value="@(Model.PondSN?.ToString() ?? "")" class="form-control form-control-sm" style="width: 100px;" />
-                </div>
-
                 <!-- 放苗日期 -->
                 <div class="col-auto">
-                    <label class="col-form-label">放苗日期:</label>
-                    <input type="date" name="startDate" value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" class="form-control form-control-sm" />
-                    ~
-                    <input type="date" name="endDate" value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" class="form-control form-control-sm" />
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label class="col-form-label mb-0">放苗日期:</label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" id="StartDate" class="form-control form-control-sm" />
+                        </div>
+                        <div class="col-auto">~</div>
+                        <div class="col-auto">
+                            <input type="date" id="EndDate" class="form-control form-control-sm" />
+                        </div>
+                    </div>
                 </div>
-
                 <div class="col-auto">
                     <button type="submit" class="btn btn-sm btn-primary">搜尋</button>
                 </div>
@@ -75,128 +50,68 @@
     <!-- 資料表格 -->
     <div class="card">
         <div class="card-body p-0">
-            @if (Model.Records.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 50px;">No</th>
-                                <th>養殖戶</th>
-                                <th>場區</th>
-                                <th>魚池</th>
-                                <th>放苗日期</th>
-                                <th>放養尾數</th>
-                                <th>苗齡(克/尾)</th>
-                                <th>管理員</th>
-                                <th>備註</th>
-                                <th style="width: 100px;">功能</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var (record, index) in Model.Records.Select((r, i) => (r, i + 1 + (Model.CurrentPage - 1) * Model.PageSize)))
-                            {
-                                <tr>
-                                    <td class="text-center">@index</td>
-                                    <td>@record.TenantName</td>
-                                    <td>@record.AreaName</td>
-                                    <td>@record.PondName</td>
-                                    <td>@record.FarmingDate.ToString("yyyy-MM-dd")</td>
-                                    <td>@record.FarmingPCS</td>
-                                    <td>@record.FryAge</td>
-                                    <td>@record.ManageAccount</td>
-                                    <td>
-                                        @if (!string.IsNullOrEmpty(record.Remark))
-                                        {
-                                            <button type="button" 
-                                                    class="btn btn-info btn-sm" 
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#remarkModal"
-                                                    data-remark="@record.Remark"
-                                                    data-name="@record.TenantName">
-                                                查看
-                                            </button>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">-</span>
-                                        }
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <a asp-action="Edit" asp-route-id="@record.FryRecordSN" class="btn btn-warning btn-sm">修改</a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- 分頁 -->
-                @if (Model.TotalPages >= 1)
-                {
-                    <div class="card-footer bg-warning-subtle">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div><small class="text-muted">資料總筆數：@Model.TotalCount</small></div>
-                            <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
-                                <input type="hidden" name="areaSN" value="@Model.AreaSN" />
-                                <input type="hidden" name="pondSN" value="@Model.PondSN" />
-                                <input type="hidden" name="startDate" value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
-                                <input type="hidden" name="endDate" value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
-
-                                <label class="form-label mb-0">每頁：</label>
-                                <select name="pageSize" class="form-select form-select-sm" onchange="this.form.submit()">
-                                    @foreach (var size in new[] { 10, 20, 50, 100 })
-                                    {
-                                        <option value="@size" selected="@(size == Model.PageSize ? "selected" : null)">
-                                            @size
-                                        </option>
-                                    }
-                                </select>
-
-                                <select name="page" class="form-select form-select-sm" onchange="this.form.submit()">
-                                    @for (int i = 1; i <= Model.TotalPages; i++)
-                                    {
-                                        <option value="@i" selected="@(i == Model.CurrentPage ? "selected" : null)">
-                                            @i
-                                        </option>
-                                    }
-                                </select>
-
-                            </form>
-                        </div>
+            <div class="table-responsive">
+                <table id="FryTable" class="table table-bordered table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;">No</th>
+                            <th>放養碼</th>
+                            <th>放苗日期</th>
+                            <th>尾數(pcs)</th>
+                            <th>苗齡(克/尾)</th>
+                            <th>管理員</th>
+                            <th>種類</th>
+                            <th>放養密度</th>
+                            <th>功能</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- JS 動態生成 -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- 分頁 -->
+            <div
+                class="card-footer bg-warning-subtle d-flex justify-content-between align-items-center flex-nowrap gap-2">
+                <div style="white-space: nowrap;">資料總筆數：<span id="TotalCount">0</span></div>
+                <div class="d-flex align-items-center gap-3" style="white-space: nowrap;">
+                    <div class="d-flex align-items-center gap-1">
+                        <label class="mb-0">每頁：</label>
+                        <select id="PageSizeSelect" class="form-select form-select-sm" style="width: auto;">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
                     </div>
-                }
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <p class="text-muted">尚無放苗作業紀錄</p>
-                    <a asp-action="Create" class="btn btn-primary">新增放苗作業紀錄</a>
+                    <div class="d-flex align-items-center gap-1">
+                        <label class="mb-0">頁碼：</label>
+                        <select id="PageSelect" class="form-select form-select-sm" style="width: auto;"></select>
+                    </div>
                 </div>
-            }
+            </div>
         </div>
     </div>
 </div>
 
 <!-- 備註彈出視窗 Modal -->
-<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+<div class="modal fade" id="RemarkModal" tabindex="-1" aria-labelledby="RemarkModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-secondary text-white">
-                <h5 class="modal-title" id="remarkModalLabel">
+                <h5 class="modal-title" id="RemarkModalLabel">
                     <i class="bi bi-pencil-square"></i> 備註內容
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-2">
                     <strong>養殖戶：</strong>
-                    <span id="remarkFarmerName"></span>
+                    <span id="RemarkFarmerName"></span>
                 </div>
                 <hr />
-                <div style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;" id="remarkContent"></div>
+                <div style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;" id="RemarkContent"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
@@ -207,16 +122,143 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            $('#remarkModal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var remark = button.data('remark');
-                var name = button.data('name');
+        let CurrentPage = 1;
+        const PageSizeSelect = document.getElementById('PageSizeSelect');
+        let PageSize = parseInt(PageSizeSelect.options[0].value);
+        let AllRecords = [];
+        const TenantSN = @ViewBag.TenantSN ?? 1;
 
-                var modal = $(this);
-                modal.find('#remarkFarmerName').text(name);
-                modal.find('#remarkContent').text(remark);
+        // 抓資料（依照篩選條件）
+        async function LoadFryRecords() {
+            const AreaSelect = document.getElementById('AreaSelect');
+            const CurrentArea = AreaSelect.value;
+            const StartDate = document.getElementById('StartDate').value;
+            const EndDate = document.getElementById('EndDate').value;
+
+            const Url = `/OperationManagement/StockingRecordQuery/GetPagedListJson?tenantSN=${TenantSN}&areaName=${CurrentArea}&startDate=${StartDate}&endDate=${EndDate}`;
+            const Response = await fetch(Url);
+            const Data = await Response.json();
+
+            AllRecords = Data.Records || [];
+
+            // 動態生成場區下拉選單
+            AreaSelect.innerHTML = '<option value="">全部</option>';
+            Data.AreaNames.forEach(area => {
+                const Option = document.createElement('option');
+                Option.value = area;
+                Option.textContent = area;
+                AreaSelect.appendChild(Option);
             });
+
+            if (CurrentArea) {
+                AreaSelect.value = CurrentArea;
+            }
+
+            CurrentPage = 1;
+            RenderTablePage();
+            RenderPagination(AllRecords.length);
+        }
+
+        // 渲染指定頁面的表格
+        function RenderTablePage() {
+            const TBody = document.querySelector('#FryTable tbody');
+            TBody.innerHTML = '';
+
+            if (!AllRecords || AllRecords.length === 0) {
+                TBody.innerHTML = `<tr><td colspan="9" class="text-center">尚無放苗作業紀錄</td></tr>`;
+                return;
+            }
+
+            const Start = (CurrentPage - 1) * PageSize;
+            const End = Start + PageSize;
+            const PageRecords = AllRecords.slice(Start, End);
+
+            PageRecords.forEach((Record, Index) => {
+                const No = Start + Index + 1;
+                const Tr = document.createElement('tr');
+                Tr.innerHTML = `
+                    <td class="text-center">${No}</td>
+                    <td>${Record.FarmingCode}</td>
+                    <td>${Record.FarmingDate ? new Date(Record.FarmingDate).toLocaleDateString() : ''}</td>
+                    <td>${Record.FarmingPCS}</td>
+                    <td>${Record.FryAge}</td>
+                    <td>${Record.ManageAccount}</td>
+                    <td>${Record.FryType ?? ''}</td>
+                    <td>${Record.FarmingDensity}</td>
+                    <td class="text-center">
+                        <div class="d-flex justify-content-center gap-2">
+                            <a href="/OperationManagement/StockingRecordQuery/Edit/${Record.FryRecordSN}" class="btn btn-warning btn-sm">修改</a>
+                        
+                            <button type="button" class="btn btn-danger btn-sm" onclick="DeleteFryRecord(${Record.FryRecordSN})">刪除</button>
+                        </div>
+                    </td>
+                `;
+                TBody.appendChild(Tr);
+            });
+
+            document.getElementById('TotalCount').textContent = AllRecords.length;
+        }
+        // 渲染分頁下拉選單
+        function RenderPagination(TotalCount) {
+            const PageSelect = document.getElementById('PageSelect');
+            PageSelect.innerHTML = '';
+
+            const TotalPages = Math.ceil(TotalCount / PageSize);
+            for (let i = 1; i <= TotalPages; i++) {
+                PageSelect.innerHTML += `<option value="${i}" ${i === CurrentPage ? 'selected' : ''}>${i}</option>`;
+            }
+        }
+        // ==================== 新增：刪除功能 ====================
+        function DeleteFryRecord(id) {
+            // 1. 跳出確認視窗
+            if (!confirm('確定要刪除這筆放苗紀錄嗎？\n(此動作無法復原)')) {
+                return; // 如果按取消，就結束
+            }
+
+            // 2. 發送 API 請求
+            fetch('/OperationManagement/StockingRecordQuery/DisableJson', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id }) // 傳送 ID
+            })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        alert(res.message);
+                        // 3. 刪除成功後，重新載入資料
+                        LoadFryRecords();
+                    } else {
+                        alert(res.message);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("發生錯誤，請稍後再試");
+                });
+        }
+        // 篩選事件
+        document.getElementById('FilterForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            LoadFryRecords();
+        });
+
+        // 分頁下拉事件
+        document.getElementById('PageSelect').addEventListener('change', function () {
+            CurrentPage = parseInt(this.value);
+            RenderTablePage();
+        });
+
+        // 每頁筆數下拉事件
+        document.getElementById('PageSizeSelect').addEventListener('change', function () {
+            PageSize = parseInt(this.value);
+            CurrentPage = 1;
+            RenderTablePage();
+            RenderPagination(AllRecords.length);
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            LoadFryRecords();
         });
     </script>
 }

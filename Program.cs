@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ADAMS.Data;
-
+using ADAMS.Areas.OperationManagement.Services.StockingRecordQuery;
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -21,7 +21,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+    });
 //builder.Services.AddControllersWithViews()
 //    .AddRazorOptions(options =>
 //    {
@@ -32,7 +36,7 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// using (var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 // {
 //    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 //    db.Database.Migrate();  // �۰ʰ��� migrations
@@ -40,11 +44,17 @@ var app = builder.Build();
 // }
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// if (!app.Environment.IsDevelopment())
+// {
+//     app.UseExceptionHandler("/Home/Error");
+//     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+//     app.UseHsts();
+// }
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+
+    Console.WriteLine("In Development environment");
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
@@ -54,7 +64,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Area ���ѳ]�w
+// Area ���ѳ]�w`
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
@@ -69,37 +79,45 @@ static void RegisterRepositoriesFromAssembly(IServiceCollection services)
 {
     var assembly = typeof(Program).Assembly;
 
-    // �۰ʱ��y�Ҧ���@ IRepository �����O
+    // Repository
     var repositoryTypes = assembly.GetTypes()
         .Where(t => t.IsClass && !t.IsAbstract)
-        .Where(t => t.Name.EndsWith("Repository"))
-        .Select(t => new
-        {
-            Implementation = t,
-            Interface = t.GetInterfaces().FirstOrDefault(i => i.Name == $"I{t.Name}")
-        })
-        .Where(x => x.Interface != null);
+        .Where(t => t.Name.EndsWith("Repository"));
 
     foreach (var type in repositoryTypes)
     {
-        services.AddScoped(type.Interface!, type.Implementation);
+        var iface = type.GetInterfaces().FirstOrDefault(i => i.Name == $"I{type.Name}");
+        if (iface != null)
+        {
+            // 如果有 interface，就用 interface 註冊
+            services.AddScoped(iface, type);
+        }
+        else
+        {
+            // 沒有 interface 就直接註冊實體
+            services.AddScoped(type);
+        }
     }
 
-    // �۰ʱ��y�Ҧ���@ IService �����O
+    // Service
     var serviceTypes = assembly.GetTypes()
         .Where(t => t.IsClass && !t.IsAbstract)
-        .Where(t => t.Name.EndsWith("Service"))
-        .Select(t => new
-        {
-            Implementation = t,
-            Interface = t.GetInterfaces().FirstOrDefault(i => i.Name == $"I{t.Name}")
-        })
-        .Where(x => x.Interface != null);
+        .Where(t => t.Name.EndsWith("Service"));
 
     foreach (var type in serviceTypes)
     {
-        services.AddScoped(type.Interface!, type.Implementation);
+        var iface = type.GetInterfaces().FirstOrDefault(i => i.Name == $"I{type.Name}");
+        if (iface != null)
+        {
+            services.AddScoped(iface, type);
+        }
+        else
+        {
+            services.AddScoped(type);
+        }
     }
+
+    
 }
 
 

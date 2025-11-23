@@ -5,7 +5,7 @@ namespace ADAMS.Data
 {
     public class DbSeeder
     {
-        public static void Seed(AppDbContext db  , bool forceReset = false)
+        public static void Seed(AppDbContext db, bool forceReset = false)
         {
             // 如果資料存在且沒要求重建，就跳出
             if (!forceReset && db.Tenant.Any())
@@ -112,13 +112,84 @@ namespace ADAMS.Data
                 FunctionSN = fid,
                 CreateUser = "seed"
             }).ToList();
-            
+
             db.Authorization.AddRange(authList);
             db.SaveChanges();
 
             Console.WriteLine("✅ 假資料已建立完成！");
+          // ===== Supplier 範例資料 =====
+            var supplier1 = new Supplier
+            {
+                TenantSN = 1,
+                SupplierNum = "S001",
+                SupplierName = "魚苗供應商A",
+                ContactName = "王小明",
+                ContactPhone = "0912345678",
+                SupplierType = 2,
+                Remark = "備註A",
+                CreateUser = "seed"
+            };
+            var supplier2 = new Supplier
+            {
+                TenantSN = 1,
+                SupplierNum = "S002",
+                SupplierName = "魚苗供應商B",
+                ContactName = "李小華",
+                ContactPhone = "0922333444",
+                SupplierType = 2,
+                Remark = "備註B",
+                CreateUser = "seed"
+            };
+            var supplier3 = new Supplier
+            {
+                TenantSN = 1,
+                SupplierNum = "S003",
+                SupplierName = "魚苗供應商C",
+                ContactName = "陳大同",
+                ContactPhone = "0933111222",
+                SupplierType = 2,
+                Remark = "備註C",
+                CreateUser = "seed"
+            };
+            db.Supplier.AddRange(supplier1, supplier2, supplier3);
+            db.SaveChanges();
 
-                        // ===== Area 範例資料 =====
+            // ===== Fry 範例資料 =====
+            var fry1 = new Fry
+            {
+                TenantSN = 1,
+                FryName = "魚苗A1",
+                SupplierSN = supplier1.SupplierSN,
+                FVName = "鯛魚",
+                UnitName = "尾",
+                Remark = "備註A1",
+                CreateUser = "seed"
+            };
+            var fry2 = new Fry
+            {
+                TenantSN = 1,
+                FryName = "魚苗B1",
+                SupplierSN = supplier2.SupplierSN,
+                FVName = "鯛魚",
+                UnitName = "尾",
+                Remark = "備註B1",
+                CreateUser = "seed"
+            };
+            var fry3 = new Fry
+            {
+                TenantSN = 1,
+                FryName = "魚苗C1",
+                SupplierSN = supplier3.SupplierSN,
+                FVName = "鯛魚",
+                UnitName = "尾",
+                Remark = "備註C1",
+                CreateUser = "seed"
+            };
+            db.Fry.AddRange(fry1, fry2, fry3);
+            db.SaveChanges();
+
+            Console.WriteLine(" Supplier、Fry 範例資料已建立完成！");
+            // ===== Area 範例資料 =====
             var area1 = new Area
             {
                 AreaName = "場區A",
@@ -165,7 +236,7 @@ namespace ADAMS.Data
             db.SaveChanges();
 
             // ===== FryRecord 範例資料 =====
-            var fry1 = new FryRecord
+            var fryRecord1 = new FryRecord
             {
                 PondSN = pond1.PondSN,
                 FarmingNum = 1,
@@ -182,7 +253,7 @@ namespace ADAMS.Data
                 SurvivalRate = 95m,
                 CreateUser = "seed"
             };
-            var fry2 = new FryRecord
+            var fryRecord2 = new FryRecord
             {
                 PondSN = pond2.PondSN,
                 FarmingNum = 2,
@@ -199,10 +270,11 @@ namespace ADAMS.Data
                 SurvivalRate = 95m,
                 CreateUser = "seed"
             };
-            db.FryRecord.AddRange(fry1, fry2);
+            db.FryRecord.AddRange(fryRecord1, fryRecord2);
             db.SaveChanges();
 
-            Console.WriteLine("✅ Area、Pond、FryRecord 範例資料已建立完成！");
+            Console.WriteLine(" Area、Pond、FryRecord 範例資料已建立完成！");
+  
         }
     }
 }

@@ -4,6 +4,7 @@ using ADAMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ADAMS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251123093412_addFrySupplier")]
+    partial class addFrySupplier
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -404,8 +407,6 @@ namespace ADAMS.Migrations
 
                     b.HasKey("FryRecordSN");
 
-                    b.HasIndex("FrySN");
-
                     b.HasIndex("PondSN");
 
                     b.ToTable("FryRecord");
@@ -709,19 +710,11 @@ namespace ADAMS.Migrations
 
             modelBuilder.Entity("ADAMS.Models.FryRecord", b =>
                 {
-                    b.HasOne("ADAMS.Models.Fry", "Fry")
-                        .WithMany()
-                        .HasForeignKey("FrySN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("ADAMS.Models.Pond", "Pond")
                         .WithMany("FryRecords")
                         .HasForeignKey("PondSN")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Fry");
 
                     b.Navigation("Pond");
                 });
