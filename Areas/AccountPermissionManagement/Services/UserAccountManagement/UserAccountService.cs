@@ -73,7 +73,13 @@ namespace ADAMS.Areas.AccountPermissionManagement.Services.UserAccountManagement
             {
                 CurrentPage = page,
                 PageSize = pageSize,
-                TotalCount = totalCount
+                TotalCount = totalCount,
+                SearchFilters = new Dictionary<string, object>
+                {
+                    { "tenantSN", tenantSN ?? 1 },
+                    { "keyword", keyword ?? "" },
+                    { "status" , status}
+                }
             };
 
             var vm = new UserAccountListViewModel

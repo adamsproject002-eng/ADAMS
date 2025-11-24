@@ -13,16 +13,23 @@
 
             <!-- 右邊：分頁控制 -->
             <div class="d-flex align-items-center gap-2">
-                <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+                <!-- ⭐ 加上 id="paginationForm" -->
+                <form id="paginationForm" method="get" asp-action="Index" class="d-flex align-items-center gap-2">
 
-                    <!-- 保留所有搜索條件 - 動態產生 Hidden Input -->
-                    @foreach (var filter in Model.SearchFilters)
+                    <!-- 保留所有搜索條件 -->
+                    @if (Model.SearchFilters != null)
                     {
-                        @if (!IsFilterEmpty(filter.Value))
+                        @foreach (var filter in Model.SearchFilters)
                         {
-                            <input type="hidden" name="@filter.Key" value="@filter.Value" />
+                            if (!IsFilterEmpty(filter.Value))
+                            {
+                                <input type="hidden" name="@filter.Key" value="@filter.Value" />
+                            }
                         }
                     }
+
+                    <!-- ⭐ 加上隱藏的 page input -->
+                    <input type="hidden" name="page" id="hiddenPage" value="@Model.CurrentPage" />
 
                     <!-- 每頁筆數 -->
                     <div class="d-flex align-items-center gap-2">
@@ -30,62 +37,57 @@
                         <select name="pageSize" class="form-select form-select-sm" style="width: 70px;" onchange="this.form.submit()">
                             @foreach (var size in Model.PageSizeOptions)
                             {
-                                if (size == Model.PageSize)
-                                {
-                                    <option value="@size" selected>@size</option>
-                                }
-                                else
-                                {
-                                    <option value="@size">@size</option>
-                                }
+                                <option value="@size" selected="@(size == Model.PageSize)">
+                                    @size
+                                </option>
                             }
                         </select>
                     </div>
 
-                    <!-- 上一頁 -->
-                    <a class="btn btn-sm btn-outline-secondary @(Model.CurrentPage == 1 ? "disabled" : "")"
-                       asp-action="Index"
-                       asp-route-page="@(Math.Max(1, Model.CurrentPage - 1))"
-                       asp-route-pageSize="@Model.PageSize">
+                    <!-- 上一頁按鈕 -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary @(Model.CurrentPage == 1 ? "disabled" : "")"
+                            onclick="changePage(@Math.Max(1, Model.CurrentPage - 1))"
+                            @(Model.CurrentPage == 1 ? "disabled" : "")>
                         ⬅ 上一頁
-                    </a>
+                    </button>
 
                     <!-- 頁碼跳轉 -->
                     <div class="d-flex align-items-center gap-1">
                         <label class="form-label mb-0" style="font-size: 0.875rem;">第</label>
-                        <select name="page" class="form-select form-select-sm" style="width: 70px;" onchange="this.form.submit()">
+                        <!-- ⭐ 改名為 pageDisplay，避免跟 hidden input 衝突 -->
+                        <select name="pageDisplay" class="form-select form-select-sm" style="width: 70px;" onchange="changePage(this.value)">
                             @for (int i = 1; i <= Model.TotalPages; i++)
                             {
-                                if (i == Model.CurrentPage)
-                                {
-                                    <option value="@i" selected>@i</option>
-                                }
-                                else
-                                {
-                                    <option value="@i">@i</option>
-                                }
+                                <option value="@i" selected="@(i == Model.CurrentPage)">
+                                    @i
+                                </option>
                             }
                         </select>
                         <label class="form-label mb-0" style="font-size: 0.875rem;">頁</label>
                     </div>
 
-                    <!-- 下一頁 -->
-                    <a class="btn btn-sm btn-outline-secondary @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")"
-                       asp-action="Index"
-                       asp-route-page="@(Math.Min(Model.TotalPages, Model.CurrentPage + 1))"
-                       asp-route-pageSize="@Model.PageSize">
+                    <!-- 下一頁按鈕 -->
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")"
+                            onclick="changePage(@Math.Min(Model.TotalPages, Model.CurrentPage + 1))"
+                            @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")>
                         下一頁 ➡
-                    </a>
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 }
 
+<script>
+    function changePage(page) {
+        document.getElementById('hiddenPage').value = page;
+        document.getElementById('paginationForm').submit();
+    }
+</script>
+
 @functions {
-    /// <summary>
-    /// 判斷搜索條件是否為空
-    /// </summary>
     private bool IsFilterEmpty(object value)
     {
         if (value == null) return true;
