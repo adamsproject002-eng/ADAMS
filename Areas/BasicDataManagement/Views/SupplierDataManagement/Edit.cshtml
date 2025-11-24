@@ -1,0 +1,90 @@
+﻿@model ADAMS.Areas.BasicDataManagement.ViewModels.SupplierDataManagement.SupplierEditViewModel
+
+@{
+    ViewData["Title"] = Model.SupplierSN.HasValue ? "修改供應商" : "新增供應商";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="@(Model.SupplierSN.HasValue ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="SupplierSN" />
+
+    <!-- 養殖戶 -->
+    <div class="mb-3">
+        <label class="form-label">養殖戶：</label>
+        @if (Model.IsOperationCompany && !Model.SupplierSN.HasValue)
+        {
+            <select asp-for="TenantSN" class="form-select"
+                    asp-items="@(new SelectList(Model.TenantOptions, "SN", "TenantName"))"></select>
+        }
+        else
+        {
+            <span>@Model.TenantName</span>
+            <input type="hidden" asp-for="TenantSN" />
+        }
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="SupplierName" class="form-label"></label>
+            <input asp-for="SupplierName" class="form-control" />
+            <span asp-validation-for="SupplierName" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="SupplierNum" class="form-label"></label>
+            <input asp-for="SupplierNum" class="form-control" />
+            <span asp-validation-for="SupplierNum" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="SupplierType" class="form-label"></label>
+            <select asp-for="SupplierType" class="form-select">
+                <option value="1">飼料</option>
+                <option value="2">魚苗</option>
+                <option value="3">其他</option>
+            </select>
+            <span asp-validation-for="SupplierType" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ContactName" class="form-label"></label>
+            <input asp-for="ContactName" class="form-control" />
+            <span asp-validation-for="ContactName" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="ContactPhone" class="form-label"></label>
+            <input asp-for="ContactPhone" class="form-control" />
+            <span asp-validation-for="ContactPhone" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Remark" class="form-label"></label>
+        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-sm me-2">送出</button>
+        <a asp-action="Index" asp-route-tenantSN="@Model.TenantSN"
+           class="btn btn-outline-secondary btn-sm">離開</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

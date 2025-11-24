@@ -12,6 +12,7 @@ namespace ADAMS.Data
         public DbSet<Authorization> Authorization { get; set; }
         public DbSet<Function> Function { get; set; }
         public DbSet<Tenant> Tenant { get; set; }
+        public DbSet<Supplier> Supplier { get; set; }
 
         protected override void OnModelCreating(ModelBuilder b)
         {
