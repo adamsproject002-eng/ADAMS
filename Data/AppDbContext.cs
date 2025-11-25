@@ -14,6 +14,7 @@ namespace ADAMS.Data
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Supplier> Supplier { get; set; }
 
+        public DbSet<Models.TimeZone> TimeZone { get; set; }
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);

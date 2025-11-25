@@ -1,0 +1,202 @@
+﻿@model ADAMS.Areas.BasicDataManagement.ViewModels.TimeSegmentSetting.TimeZoneListViewModel
+
+@{
+    ViewData["Title"] = "時間區段管理";
+}
+
+<div class="container-fluid p-4" style="background-color:#FFFACD;">
+    <!-- 標題 + 新增 -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">@ViewData["Title"]</h4>
+        <a asp-action="Create"
+           asp-route-tenantSN="@Model.CurrentTenantSN"
+           class="btn btn-primary btn-sm">
+            新增時間區段
+        </a>
+    </div>
+
+    <!-- 訊息 -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- 搜尋條件 -->
+    <div class="card mb-3">
+        <div class="card-header bg-warning-subtle">
+            搜尋條件
+        </div>
+        <div class="card-body py-2">
+            <form asp-action="Index" method="get" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">養殖戶：</label>
+                    @if (Model.IsOperationCompany)
+                    {
+                        <select name="tenantSN" class="form-select">
+                            @foreach (var t in Model.TenantOptions)
+                            {
+                                <option value="@t.SN" selected="@(t.SN == Model.CurrentTenantSN)">
+                                    @t.TenantName
+                                </option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <input type="text" class="form-control"
+                               value="@Model.TenantOptions.First().TenantName" readonly />
+                        <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                    }
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">關鍵字：</label>
+                    <input type="text" name="keyword" value="@Model.Keyword" class="form-control"
+                           placeholder="區段編碼 / 區段描述" />
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-sm btn-primary">搜尋</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 列表 -->
+    <div class="card">
+        <div class="card-body p-0">
+            @if (Model.TimeZones.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:60px;">No</th>
+                                <th style="width:150px;">區段編碼</th>
+                                <th>區段描述</th>
+                                <th style="width:120px;">備註</th>
+                                <th style="width:140px;">功能</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var (item, index) in Model.TimeZones.Select((z, i) => (z, i + 1 + (Model.Pagination.CurrentPage - 1) * Model.Pagination.PageSize)))
+                            {
+                                <tr>
+                                    <td class="text-center">@index</td>
+                                    <td>@item.TimeZoneNum</td>
+                                    <td>@item.TimeZoneDesc</td>
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.Remark))
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-info btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#remarkModal"
+                                                    data-name="@item.TimeZoneNum"
+                                                    data-remark="@item.Remark">
+                                                查看
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Edit"
+                                               asp-route-id="@item.TimeZoneSN"
+                                               class="btn btn-warning btn-sm">
+                                                修改
+                                            </a>
+
+                                            <form asp-action="Delete"
+                                                  asp-route-id="@item.TimeZoneSN"
+                                                  asp-route-tenantSN="@Model.CurrentTenantSN"
+                                                  method="post"
+                                                  class="d-inline"
+                                                  onsubmit="return confirm('確定要刪除這筆時間區段嗎？');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    刪除
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                 
+                Model.Pagination.SearchFilters = new Dictionary<string, object>
+                {
+                    { "tenantSN", Model.CurrentTenantSN },
+                    { "keyword", Model.Keyword ?? "" }
+                };
+                <partial name="_Pagination" model="Model.Pagination" />
+            }
+            else
+            {
+                <div class="p-3 text-center">
+                    <p class="text-muted mb-2">尚無時間區段資料</p>
+                    <a asp-action="Create"
+                       asp-route-tenantSN="@Model.CurrentTenantSN"
+                       class="btn btn-primary btn-sm">新增時間區段</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- 備註 Modal -->
+<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="remarkModalLabel">備註內容</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <strong>時間區段名稱：</strong>
+                    <span id="remarkTimeZoneName"></span>
+                </div>
+                <hr />
+                <div id="remarkContent" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const remarkModal = document.getElementById('remarkModal');
+            if (!remarkModal) return;
+
+            remarkModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const remark = button.getAttribute('data-remark');
+                const name = button.getAttribute('data-name');
+
+                document.getElementById('remarkTimeZoneName').textContent = name;
+                document.getElementById('remarkContent').textContent = remark;
+            });
+        })();
+    </script>
+}
