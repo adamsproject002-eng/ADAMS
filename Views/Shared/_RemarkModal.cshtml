@@ -1,0 +1,27 @@
+﻿@using ADAMS.Areas.Models
+@model RemarkModalOptions
+
+<!-- 共用：備註 Modal -->
+<div class="modal fade" id="remarkModal" tabindex="-1" aria-labelledby="remarkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-secondary text-white">
+                <h5 class="modal-title" id="remarkModalLabel">
+                    @Model.Title
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <strong>@Model.NameLabel</strong>
+                    <span id="remarkTargetName"></span>
+                </div>
+                <hr />
+                <div id="remarkContent" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+            </div>
+        </div>
+    </div>
+</div>
