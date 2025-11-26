@@ -1,0 +1,122 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.AreaPondManagement
+@model PondListViewModel
+
+@{
+    ViewData["Title"] = "養殖池管理";
+}
+
+<h4>@ViewData["Title"] - @Model.AreaName</h4>
+<p class="text-muted">總面積：@Model.TotalPondArea m2</p>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <input type="hidden" name="areaSN" value="@Model.AreaSN" />
+
+            <div class="col-md-4">
+                <label class="form-label">池號：</label>
+                <input type="text" name="keyword" class="form-control" value="@Model.Keyword" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">搜尋</button>
+            </div>
+
+            <div class="col-md-6 text-end">
+                <a asp-action="CreatePond" asp-route-areaSN="@Model.AreaSN" class="btn btn-success">
+                    新增養殖池
+                </a>
+                <a asp-action="Index" class="btn btn-outline-secondary">返回場區清單</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Ponds.Any())
+{
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:50px;">No</th>
+                            <th>池號</th>
+                            <th>最寬邊(m)</th>
+                            <th>長/直徑(m)</th>
+                            <th>水面積(m2)</th>
+                            <th>備註</th>
+                            <th style="width:150px;">功能</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var (pond, index) in Model.Ponds.Select((p, i) => (p, i + 1 + (Model.Pagination.CurrentPage - 1) * Model.Pagination.PageSize)))
+                        {
+                            <tr>
+                                <td class="text-center">@index</td>
+                                <td>@pond.PondNum</td>
+                                <td class="text-end">@pond.PondWidth</td>
+                                <td class="text-end">@pond.PondLength</td>
+                                <td class="text-end">@pond.PondArea</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(pond.Remark))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-info btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#remarkModal"
+                                                data-name="@pond.PondNum"
+                                                data-remark="@pond.Remark">
+                                            查看
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="EditPond"
+                                           asp-route-id="@pond.PondSN"
+                                           class="btn btn-warning">修改</a>
+
+                                        <form asp-action="DeletePond" method="post" class="d-inline"
+                                              onsubmit="return confirm('確定要刪除此養殖池嗎？');">
+                                            <input type="hidden" name="id" value="@pond.PondSN" />
+                                            <input type="hidden" name="areaSN" value="@Model.AreaSN" />
+                                            <button type="submit" class="btn btn-danger">刪除</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="_Pagination" model="Model.Pagination" />
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">尚無養殖池資料</div>
+}
+
+<!-- 備註 Modal -->
+@await Html.PartialAsync(
+"_RemarkModal",
+    new ADAMS.Areas.Models.RemarkModalOptions
+    {
+        NameLabel = "養殖池名稱：",
+    })

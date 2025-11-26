@@ -1,0 +1,71 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.AreaPondManagement
+@model PondEditViewModel
+
+@{
+    ViewData["Title"] = Model.PondSN.HasValue ? "修改養殖池" : "新增養殖池";
+}
+
+<h4>@ViewData["Title"] - 場區：@Model.AreaName</h4>
+<hr />
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="@(Model.PondSN.HasValue ? "EditPond" : "CreatePond")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="PondSN" />
+    <input type="hidden" asp-for="AreaSN" />
+    <input type="hidden" asp-for="TenantSN" />
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="PondNum" class="form-label"></label>
+            <input asp-for="PondNum" class="form-control" />
+            <span asp-validation-for="PondNum" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="PondWidth" class="form-label"></label>
+            <input asp-for="PondWidth" class="form-control" />
+            <span asp-validation-for="PondWidth" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="PondLength" class="form-label"></label>
+            <input asp-for="PondLength" class="form-control" />
+            <span asp-validation-for="PondLength" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="PondArea" class="form-label"></label>
+        <input asp-for="PondArea" class="form-control" />
+        <span asp-validation-for="PondArea" class="text-danger"></span>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="GPSX" class="form-label"></label>
+            <input asp-for="GPSX" class="form-control" />
+            <span asp-validation-for="GPSX" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="GPSY" class="form-label"></label>
+            <input asp-for="GPSY" class="form-control" />
+            <span asp-validation-for="GPSY" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Remark" class="form-label"></label>
+        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-sm">送出</button>
+        <a asp-action="PondList" asp-route-areaSN="@Model.AreaSN" class="btn btn-outline-secondary btn-sm">離開</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

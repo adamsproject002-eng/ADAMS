@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ADAMS.Data;
 using ADAMS.ViewModels;
 using System.Security.Claims;
+using ADAMS.Models;
 
 namespace ADAMS.Controllers
 {
@@ -72,15 +73,18 @@ namespace ADAMS.Controllers
 
             //建立Claims（登入者的身份資訊與權限）
             var claims = new List<Claim>
-    {
-        new Claim(ClaimTypes.Name, user.AccountName),
-        new Claim("TenantSN", user.TenantSN.ToString()),
-        new Claim("TenantName", user.Tenant?.TenantName ?? ""),
-        new Claim("GroupName", user.AccGroup?.Name ?? "")
-    };
+            {
+                new Claim(ClaimTypes.Name, user.AccountName),
+                new Claim("TenantSN", user.TenantSN.ToString()),
+                new Claim("AccGroupSN", user.AccGroupSN.ToString()),
+                new Claim("TenantName", user.Tenant?.TenantName ?? ""),
+                new Claim("GroupName", user.AccGroup?.Name ?? "")
+            };
+
+            var functionNames = await BuildFunctionNamesForGroupAsync(user.AccGroupSN);
 
             //把功能權限也加進 Claims
-            foreach (var f in vm.FunctionNames)
+            foreach (var f in functionNames)
             {
                 claims.Add(new Claim("Function", f));
             }
@@ -102,6 +106,46 @@ namespace ADAMS.Controllers
             
             return RedirectToAction("Profile", "Auth");
             return RedirectToAction("Index", "Home");
+        }
+
+        private async Task<List<string>> BuildFunctionNamesForGroupAsync(int accGroupSN)
+        {
+            var leafFunctions = await _db.Authorization
+            .Where(a => a.AccGroupSN == accGroupSN && !a.IsDeleted)
+            .Select(a => a.Function)
+            .Where(f => f != null)
+            .Cast<Function>()
+            .ToListAsync();
+
+            if (!leafFunctions.Any())
+                return new List<string>();
+
+            // 2. 先把 leaf 自己的 CName 加進集合
+            var nameSet = new HashSet<string>(leafFunctions.Select(f => f.CName));
+
+            // 3. 取出整張 Function 表，用來往上找父節點
+            var allFunctions = await _db.Function
+                .AsNoTracking()
+                .ToListAsync();
+
+            // 4. 對每個 leaf，一路往上找父功能，直到 UpperFunctionSN = 0
+            foreach (var leaf in leafFunctions)
+            {
+                var upperSn = leaf.UpperFunctionSN;
+
+                while (upperSn != 0)
+                {
+                    var upper = allFunctions.FirstOrDefault(x => x.FunctionSN == upperSn);
+                    if (upper == null) break;
+
+                    nameSet.Add(upper.CName);             // 父功能名稱也加入
+                    upperSn = upper.UpperFunctionSN;      // 持續往上找
+                }
+            }
+
+            return nameSet
+                .OrderBy(n => n)
+                .ToList();
         }
 
         [Authorize]

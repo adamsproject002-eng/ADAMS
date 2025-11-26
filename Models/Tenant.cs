@@ -46,7 +46,11 @@ namespace ADAMS.Models
 
         [StringLength(500)]
         public string? Remark { get; set; }  // 備註
+
+        // 導覽屬性
         public ICollection<AccountGroup> AccountGroups { get; set; } = new List<AccountGroup>();
         public ICollection<Account> Accounts { get; set; } = new List<Account>();
+        public ICollection<Area> Areas { get; set; } = new List<Area>();
+        public ICollection<Pond> Ponds { get; set; } = new List<Pond>();
     }
 }

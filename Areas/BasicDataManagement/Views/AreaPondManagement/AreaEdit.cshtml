@@ -1,0 +1,65 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.AreaPondManagement
+@model AreaEditViewModel
+
+@{
+    ViewData["Title"] = Model.AreaSN.HasValue ? "修改養殖區" : "新增養殖區";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="@(Model.AreaSN.HasValue ? "EditArea" : "CreateArea")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="AreaSN" />
+
+    <div class="mb-3">
+        <label class="form-label">養殖戶：</label>
+        @if (Model.IsOperationCompany && !Model.AreaSN.HasValue)
+        {
+            <select asp-for="TenantSN" class="form-select"
+                    asp-items="@(new SelectList(Model.TenantOptions, "SN", "TenantName", Model.TenantSN))"></select>
+        }
+        else
+        {
+            <span>@Model.TenantName</span>
+            <input type="hidden" asp-for="TenantSN" />
+        }
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AreaName" class="form-label"></label>
+        <input asp-for="AreaName" class="form-control" />
+        <span asp-validation-for="AreaName" class="text-danger"></span>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label asp-for="GPSX" class="form-label"></label>
+            <input asp-for="GPSX" class="form-control" />
+            <span asp-validation-for="GPSX" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="GPSY" class="form-label"></label>
+            <input asp-for="GPSY" class="form-control" />
+            <span asp-validation-for="GPSY" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Remark" class="form-label"></label>
+        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-sm">送出</button>
+        <a asp-action="Index" asp-route-tenantSN="@Model.TenantSN" class="btn btn-outline-secondary btn-sm">離開</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

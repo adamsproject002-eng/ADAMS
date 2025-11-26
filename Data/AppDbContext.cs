@@ -13,45 +13,68 @@ namespace ADAMS.Data
         public DbSet<Function> Function { get; set; }
         public DbSet<Tenant> Tenant { get; set; }
         public DbSet<Supplier> Supplier { get; set; }
-
         public DbSet<Models.TimeZone> TimeZone { get; set; }
+        public DbSet<Area> Area { get; set; }
+        public DbSet<Pond> Pond { get; set; }
+
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
 
-            // 一個 Tenant 可有多個 AccountGroup，但刪除時不 cascade
+            // Tenant ↔ AccountGroup
             b.Entity<AccountGroup>()
                 .HasOne(g => g.Tenant)
                 .WithMany(t => t.AccountGroups)
                 .HasForeignKey(g => g.TenantSN)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // 一個 Account 可對應一個 Tenant（nullable 可允許 null）
+            //一個 Tenant 有多個 Account
             b.Entity<Account>()
                 .HasOne(a => a.Tenant)
-                .WithMany()
+                .WithMany(t => t.Accounts)
                 .HasForeignKey(a => a.TenantSN)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // 一個 Account 可對應一個 AccountGroup
+            // Account ↔ AccountGroup
             b.Entity<Account>()
                 .HasOne(a => a.AccGroup)
                 .WithMany(g => g.Accounts)
                 .HasForeignKey(a => a.AccGroupSN)
-                .OnDelete(DeleteBehavior.Restrict); 
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // 一個 AccountGroup 有多個 Authorization
+            // AccountGroup ↔ Authorization
             b.Entity<Authorization>()
                 .HasOne(a => a.AccountGroup)
                 .WithMany(g => g.Authorizations)
                 .HasForeignKey(a => a.AccGroupSN)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 一個 Function 有多個 Authorization
+            // Function ↔ Authorization
             b.Entity<Authorization>()
                 .HasOne(a => a.Function)
                 .WithMany(f => f.Authorizations)
                 .HasForeignKey(a => a.FunctionSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //一個 Tenant 有多個 Area
+            b.Entity<Area>()
+                .HasOne(a => a.Tenant)
+                .WithMany(t => t.Areas)
+                .HasForeignKey(a => a.TenantSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //一個 Tenant 有多個 Pond
+            b.Entity<Pond>()
+                .HasOne(p => p.Tenant)
+                .WithMany(t => t.Ponds)
+                .HasForeignKey(p => p.TenantSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //一個 Area 有多個 Pond
+            b.Entity<Pond>()
+                .HasOne(p => p.Area)
+                .WithMany(a => a.Ponds)
+                .HasForeignKey(p => p.AreaSN)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

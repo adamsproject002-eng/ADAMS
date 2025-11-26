@@ -1,0 +1,149 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.AreaPondManagement
+@model AreaListViewModel
+
+@{
+    ViewData["Title"] = "養殖場區管理";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            @if (Model.IsOperationCompany)
+            {
+                <div class="col-md-3">
+                    <label class="form-label">養殖戶：</label>
+                    <select name="tenantSN" class="form-select">
+                        @foreach (var t in Model.TenantOptions)
+                        {
+                            <option value="@t.SN" selected="@(t.SN == Model.CurrentTenantSN)">@t.TenantName</option>
+                        }
+                    </select>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+            }
+
+            <div class="col-md-3">
+                <label class="form-label">關鍵字：</label>
+                <input type="text" name="keyword" class="form-control" value="@Model.Keyword" placeholder="場區名稱 / GPS" />
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary">搜尋</button>
+            </div>
+
+            <div class="col-md-4 text-end">
+                <a asp-action="CreateArea" asp-route-tenantSN="@Model.CurrentTenantSN" class="btn btn-success">
+                    新增養殖區
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Areas.Any())
+{
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width:50px;">No</th>
+                            <th>場區名稱</th>
+                            <th>GPS 座標</th>
+                            <th>養殖池數量</th>
+                            <th>總水面積 (m2)</th>
+                            <th>備註</th>
+                            <th style="width:180px;">功能</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var (area, index) in Model.Areas.Select((a, i) => (a, i + 1 + (Model.Pagination.CurrentPage - 1) * Model.Pagination.PageSize)))
+                        {
+                            <tr>
+                                <td class="text-center">@index</td>
+                                <td>@area.AreaName</td>
+                                <td>@($"{area.GPSX} , {area.GPSY}")</td>
+                                <td class="text-end">@area.PondCount</td>
+                                <td class="text-end">@area.TotalPondArea</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(area.Remark))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-info btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#remarkModal"
+                                                data-name="@area.AreaName"
+                                                data-remark="@area.Remark">
+                                            查看
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="PondList"
+                                           asp-route-areaSN="@area.AreaSN"
+                                           class="btn btn-primary">養殖池管理</a>
+
+                                        <a asp-action="EditArea"
+                                           asp-route-id="@area.AreaSN"
+                                           class="btn btn-warning">修改</a>
+
+                                        <form asp-action="DeleteArea" method="post" class="d-inline"
+                                              onsubmit="return confirm('確定要刪除此養殖區嗎？');">
+                                            <input type="hidden" name="id" value="@area.AreaSN" />
+                                            <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                                            <button type="submit" class="btn btn-danger">刪除</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="_Pagination" model="Model.Pagination" />
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">尚無養殖區資料</div>
+}
+
+<!-- 備註 Modal -->
+@await Html.PartialAsync(
+"_RemarkModal",
+    new ADAMS.Areas.Models.RemarkModalOptions
+    {
+        NameLabel = "養殖區名稱：",
+    })
+
+
+
