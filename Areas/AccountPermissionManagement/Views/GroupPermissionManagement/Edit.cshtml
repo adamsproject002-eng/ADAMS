@@ -26,15 +26,30 @@
     @Html.AntiForgeryToken()
 
     <input type="hidden" asp-for="AccountGroupSN" />
-    <input type="hidden" asp-for="TenantSN" />
 
-    <!-- (A) 顯示目前歸屬的養殖戶 -->
+    <!-- 養殖戶欄位 -->
     <div class="mb-3">
         <label class="form-label">養殖戶：</label>
-        <span>@Model.TenantName</span>
+
+        @* 營運公司 & 新增群組：可以切換養殖戶 *@
+        @if (Model.IsOperationCompany && !Model.AccountGroupSN.HasValue)
+        {
+            <select asp-for="TenantSN"
+                    class="form-select"
+                    asp-items="@(new SelectList(Model.TenantOptions, "SN", "TenantName", Model.TenantSN))">
+                <option value="">請選擇養殖戶</option>
+            </select>
+            <span asp-validation-for="TenantSN" class="text-danger"></span>
+        }
+        else
+        {
+            @* 一般養殖戶 或 修改既有群組：顯示文字，不可切換 *@
+            <span>@Model.TenantName</span>
+            <input type="hidden" asp-for="TenantSN" />
+        }
     </div>
 
-    <!-- (B) 群組名稱 -->
+    <!-- 群組名稱 -->
     <div class="mb-3">
         <label asp-for="Name" class="form-label"></label>
         <input asp-for="Name" class="form-control" />
@@ -48,13 +63,12 @@
         <span asp-validation-for="Remark" class="text-danger"></span>
     </div>
 
-    <!-- (C)(D) 權限清單 -->
+    <!-- 權限設定 -->
     <div class="mb-3 p-3 border rounded" style="background-color: #fffbe6;">
         <h5>權限設定</h5>
         <hr />
 
         @{
-            // 父選單（FLevel=1）
             var parents = Model.Functions
                 .Where(f => f.FLevel == 1)
                 .OrderBy(f => f.Sort)
@@ -63,16 +77,14 @@
 
         @foreach (var parent in parents)
         {
-            //找出父選單在 Functions清單中的index
             var parentIdx = Model.Functions.FindIndex(f => f.FunctionSN == parent.FunctionSN);
 
-            //父選單本身不勾選，只需要讓它進入 Functions 集合 -->
+            <!-- 父選單本身不勾選，只要存在於集合中即可 -->
             <input asp-for="Functions[parentIdx].FunctionSN" type="hidden" />
             <input asp-for="Functions[parentIdx].CName" type="hidden" />
             <input asp-for="Functions[parentIdx].FLevel" type="hidden" />
             <input asp-for="Functions[parentIdx].UpperFunctionSN" type="hidden" />
             <input asp-for="Functions[parentIdx].Sort" type="hidden" />
-           
 
             var children = Model.Functions
                 .Where(f => f.UpperFunctionSN == parent.FunctionSN)
@@ -86,7 +98,6 @@
             <div class="mb-3 d-flex flex-wrap">
                 @foreach (var child in children)
                 {
-                    // 找出在 Functions清單中的index
                     var idx = Model.Functions.FindIndex(f => f.FunctionSN == child.FunctionSN);
 
                     <div class="form-check me-3 mb-1">
@@ -124,15 +135,19 @@
             var selectAllBtn = document.getElementById('btnSelectAll');
             var clearAllBtn = document.getElementById('btnClearAll');
 
-            selectAllBtn.addEventListener('click', function () {
-                document.querySelectorAll('.permission-checkbox')
-                    .forEach(function (cb) { cb.checked = true; });
-            });
+            if (selectAllBtn) {
+                selectAllBtn.addEventListener('click', function () {
+                    document.querySelectorAll('.permission-checkbox')
+                        .forEach(function (cb) { cb.checked = true; });
+                });
+            }
 
-            clearAllBtn.addEventListener('click', function () {
-                document.querySelectorAll('.permission-checkbox')
-                    .forEach(function (cb) { cb.checked = false; });
-            });
+            if (clearAllBtn) {
+                clearAllBtn.addEventListener('click', function () {
+                    document.querySelectorAll('.permission-checkbox')
+                        .forEach(function (cb) { cb.checked = false; });
+                });
+            }
         })();
     </script>
 }
