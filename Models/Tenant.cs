@@ -53,5 +53,6 @@ namespace ADAMS.Models
         public ICollection<Area> Areas { get; set; } = new List<Area>();
         public ICollection<Pond> Ponds { get; set; } = new List<Pond>();
         public ICollection<Fry> Fries { get; set; } = new List<Fry>();
+        public ICollection<Feed> Feeds { get; set; } = new List<Feed>();
     }
 }

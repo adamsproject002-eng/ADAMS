@@ -18,6 +18,7 @@ namespace ADAMS.Data
         public DbSet<Pond> Pond { get; set; }
         public DbSet<FishVariety> FishVariety { get; set; }
         public DbSet<Fry> Fry { get; set; }
+        public DbSet<Feed> Feed { get; set; }
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
@@ -97,6 +98,20 @@ namespace ADAMS.Data
                 .HasOne(f => f.FishVariety)
                 .WithMany(v => v.Fries)
                 .HasForeignKey(f => f.FVSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 一個Tenant  有多個Feed
+            b.Entity<Feed>()
+                .HasOne(f => f.Tenant)
+                .WithMany(t => t.Feeds)
+                .HasForeignKey(f => f.TenantSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //一個Supplier 有多個 Feed
+            b.Entity<Feed>()
+                .HasOne(f => f.Supplier)
+                .WithMany(s => s.Feeds)
+                .HasForeignKey(f => f.SupplierSN)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

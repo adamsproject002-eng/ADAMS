@@ -54,5 +54,6 @@ namespace ADAMS.Models
 
         [StringLength(50)]
         public string? DeleteUser { get; set; }
+        public ICollection<Feed> Feeds { get; set; } = new List<Feed>();
     }
 }
