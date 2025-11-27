@@ -1,9 +1,15 @@
-﻿namespace ADAMS.Areas.Models
+﻿using System.Drawing.Printing;
+
+namespace ADAMS.Areas.Models
 {
     public class PaginationInfo
     {
         public int CurrentPage { get; set; }
-        public int TotalPages { get; set; }
+        public int TotalPages =>
+            PageSize <= 0
+                ? 0
+                : (int)Math.Ceiling(TotalCount / (double)PageSize);
+
         public int TotalCount { get; set; }
         public int PageSize { get; set; }
         public int[] PageSizeOptions { get; set; } = new[] { 5, 10, 15, 20 };

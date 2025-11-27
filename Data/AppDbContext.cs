@@ -16,7 +16,8 @@ namespace ADAMS.Data
         public DbSet<Models.TimeZone> TimeZone { get; set; }
         public DbSet<Area> Area { get; set; }
         public DbSet<Pond> Pond { get; set; }
-
+        public DbSet<FishVariety> FishVariety { get; set; }
+        public DbSet<Fry> Fry { get; set; }
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
@@ -75,6 +76,27 @@ namespace ADAMS.Data
                 .HasOne(p => p.Area)
                 .WithMany(a => a.Ponds)
                 .HasForeignKey(p => p.AreaSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 一個Tenant 有多個 Fry
+            b.Entity<Fry>()
+                .HasOne(f => f.Tenant)
+                .WithMany(t => t.Fries)
+                .HasForeignKey(f => f.TenantSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // 一個Supplier 有多個 Fry
+            b.Entity<Fry>()
+                .HasOne(f => f.Supplier)
+                .WithMany()
+                .HasForeignKey(f => f.SupplierSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            //一個 FishVariety 有多個 Fry
+            b.Entity<Fry>()
+                .HasOne(f => f.FishVariety)
+                .WithMany(v => v.Fries)
+                .HasForeignKey(f => f.FVSN)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

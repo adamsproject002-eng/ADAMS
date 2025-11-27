@@ -60,7 +60,6 @@ namespace ADAMS.Areas.AccountPermissionManagement.Services.FarmerManagement
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalCount = totalCount,
-                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
                 SearchFilters = new Dictionary<string, object>
                 {
                     { "statusFilter", statusFilter ?? "" },
