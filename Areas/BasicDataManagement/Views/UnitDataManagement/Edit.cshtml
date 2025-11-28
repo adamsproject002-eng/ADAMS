@@ -1,0 +1,41 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.UnitDataManagement
+@model UnitDataEditViewModel
+
+@{
+    var isEdit = Model.UnitSN.HasValue;
+    ViewData["Title"] = isEdit ? "修改單位" : "新增單位";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="UnitSN" />
+
+    <div class="row mb-3">
+        <div class="col-12 col-md-6">
+            <label asp-for="UnitName" class="form-label"></label>
+            <input asp-for="UnitName" class="form-control" />
+            <span asp-validation-for="UnitName" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Remark" class="form-label"></label>
+        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-sm me-2">送出</button>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">離開</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -23,6 +23,7 @@ namespace ADAMS.Data
         public DbSet<GrowTargetDetail> GrowTargetDetail { get; set; }
         public DbSet<FeedingPlanMain> FeedingPlanMain { get; set; }
         public DbSet<FeedingPlanDetail> FeedingPlanDetail { get; set; }
+        public DbSet<Unit> Unit { get; set; }
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
