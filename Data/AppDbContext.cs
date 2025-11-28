@@ -21,6 +21,8 @@ namespace ADAMS.Data
         public DbSet<Feed> Feed { get; set; }
         public DbSet<GrowTargetMain> GrowTargetMain { get; set; }
         public DbSet<GrowTargetDetail> GrowTargetDetail { get; set; }
+        public DbSet<FeedingPlanMain> FeedingPlanMain { get; set; }
+        public DbSet<FeedingPlanDetail> FeedingPlanDetail { get; set; }
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
@@ -128,6 +130,20 @@ namespace ADAMS.Data
                 .HasOne(d => d.Main)
                 .WithMany(m => m.Details)
                 .HasForeignKey(d => d.GTMSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // FishVariety ↔ FeedingPlanMain
+            b.Entity<FeedingPlanMain>()
+                .HasOne(m => m.FishVariety)
+                .WithMany(v => v.FeedingPlans) 
+                .HasForeignKey(m => m.FVSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // FeedingPlanMain ↔ FeedingPlanDetail
+            b.Entity<FeedingPlanDetail>()
+                .HasOne(d => d.Main)
+                .WithMany(m => m.Details)
+                .HasForeignKey(d => d.FPMSN)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

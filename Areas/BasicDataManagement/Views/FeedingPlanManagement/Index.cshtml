@@ -1,0 +1,211 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.FeedingPlanManagement
+@using ADAMS.Areas.Models
+@model FeedingPlanListViewModel
+
+@{
+    ViewData["Title"] = "投餌規劃管理";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card mb-3 bg-warning-subtle">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-center">
+
+            @if (Model.IsOperationCompany)
+            {
+                <div class="col-12 col-md-auto">
+                    <label class="form-label mb-0">養殖戶：</label>
+                </div>
+                <div class="col-12 col-md-3">
+                    <select name="tenantSN" class="form-select form-select-sm"
+                            onchange="this.form.submit()">
+                        @foreach (var t in Model.TenantOptions)
+                        {
+                            <option value="@t.SN" selected="@(t.SN == Model.CurrentTenantSN)">
+                                @t.TenantName
+                            </option>
+                        }
+                    </select>
+                </div>
+            }
+            else
+            {
+                <div class="col-12 col-md-auto">
+                    <label class="form-label mb-0">養殖戶：</label>
+                    <span>@Model.CurrentTenantName</span>
+                    <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                </div>
+            }
+
+            <div class="col-12 col-md-auto">
+                <label class="form-label mb-0">種類：</label>
+            </div>
+            <div class="col-12 col-md-3">
+                <select name="fvsn" class="form-select form-select-sm" onchange="this.form.submit()">
+                    @foreach (var v in Model.FishVarietyOptions)
+                    {
+                        <option value="@v.FVSN" selected="@(v.FVSN == Model.SelectedFVSN)">
+                            @v.FVName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12 col-md-auto">
+                <button type="submit" class="btn btn-primary btn-sm">搜尋</button>
+            </div>
+
+            <div class="col-12 col-md text-md-end">
+                <a class="btn btn-primary btn-sm"
+                   asp-action="Create"
+                   asp-route-tenantSN="@Model.CurrentTenantSN"
+                   asp-route-fvsn="@Model.SelectedFVSN">
+                    新增
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-info-subtle">
+        種類：@Model.SelectedFishVarietyName
+    </div>
+
+    <div class="card-body p-0">
+
+        <!-- 桌機版表格 -->
+        <div class="d-none d-md-block">
+            <table class="table table-bordered table-hover table-sm mb-0">
+                <thead class="table-warning text-center">
+                    <tr>
+                        <th style="width:15%">DOC(days)</th>
+                        <th style="width:20%">ABW(g/pc)</th>
+                        <th style="width:20%">投餌率(%)</th>
+                        <th>備註</th>
+                        <th style="width:15%">功能</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">尚無投餌規劃資料</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td class="text-center">@item.DOC</td>
+                                <td class="text-end">@item.ABW.ToString("0.00")</td>
+                                <td class="text-end">@item.FeedingRate.ToString("0.00")</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.Remark))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-info btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#remarkModal"
+                                                data-name="@($"DOC {item.DOC}")"
+                                                data-remark="@item.Remark">
+                                            查看
+                                        </button>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a class="btn btn-primary btn-sm me-1"
+                                       asp-action="Edit"
+                                       asp-route-id="@item.FPDSN">
+                                        修改
+                                    </a>
+
+                                    <form asp-action="Delete"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('確認要刪除此筆資料？');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.FPDSN" />
+                                        <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                                        <input type="hidden" name="fvsn" value="@Model.SelectedFVSN" />
+                                        <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 手機版卡片 -->
+        <div class="d-block d-md-none p-2">
+            @if (!Model.Items.Any())
+            {
+                <div class="text-center">尚無投餌規劃資料</div>
+            }
+            else
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div><strong>DOC：</strong>@item.DOC</div>
+                                    <div><strong>ABW：</strong>@item.ABW.ToString("0.00")</div>
+                                    <div><strong>投餌率：</strong>@item.FeedingRate.ToString("0.00")</div>
+                                    @if (!string.IsNullOrWhiteSpace(item.Remark))
+                                    {
+                                        <div class="mt-1">
+                                            <button type="button"
+                                                    class="btn btn-info btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#remarkModal"
+                                                    data-name="@($"DOC {item.DOC}")"
+                                                    data-remark="@item.Remark">
+                                                查看備註
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="text-end">
+                                    <a class="btn btn-primary btn-sm mb-1"
+                                       asp-action="Edit"
+                                       asp-route-id="@item.FPDSN">
+                                        修改
+                                    </a>
+                                    <form asp-action="Delete"
+                                          method="post"
+                                          onsubmit="return confirm('確認要刪除此筆資料？');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.FPDSN" />
+                                        <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                                        <input type="hidden" name="fvsn" value="@Model.SelectedFVSN" />
+                                        <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+    </div>
+</div>
+
+<!-- 共用備註 Modal -->
+<partial name="_RemarkModal"
+         model="@(new RemarkModalOptions { Title = "備註內容", NameLabel = "投餌規劃項目：" })" />

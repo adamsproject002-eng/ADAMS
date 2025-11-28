@@ -1,0 +1,71 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.FeedingPlanManagement
+@model FeedingPlanEditViewModel
+
+@{
+    var isEdit = Model.FPDSN.HasValue;
+    ViewData["Title"] = isEdit ? "修改投餌規劃" : "新增投餌規劃";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="FPDSN" />
+    <input type="hidden" asp-for="FPMSN" />
+    <input type="hidden" asp-for="TenantSN" />
+    <input type="hidden" asp-for="FVSN" />
+
+    <div class="row mb-3">
+        <div class="col-12 col-md-6">
+            <label class="form-label">養殖戶：</label>
+            <span>@Model.TenantName</span>
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">種類：</label>
+            <span>@Model.FishVarietyName</span>
+            <input type="hidden" asp-for="FishVarietyName" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12 col-md-4 mb-2 mb-md-0">
+            <label asp-for="DOC" class="form-label"></label>
+            <input asp-for="DOC" class="form-control" />
+            <span asp-validation-for="DOC" class="text-danger"></span>
+        </div>
+        <div class="col-12 col-md-4 mb-2 mb-md-0">
+            <label asp-for="ABW" class="form-label"></label>
+            <input asp-for="ABW" class="form-control" />
+            <span asp-validation-for="ABW" class="text-danger"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="FeedingRate" class="form-label"></label>
+            <input asp-for="FeedingRate" class="form-control" />
+            <span asp-validation-for="FeedingRate" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Remark" class="form-label"></label>
+        <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Remark" class="text-danger"></span>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-sm me-2">送出</button>
+        <a asp-action="Index"
+           asp-route-tenantSN="@Model.TenantSN"
+           asp-route-fvsn="@Model.FVSN"
+           class="btn btn-outline-secondary btn-sm">
+            離開
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

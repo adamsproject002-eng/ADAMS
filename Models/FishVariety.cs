@@ -40,5 +40,6 @@ namespace ADAMS.Models
         // 導覽屬性：一個魚種可有多筆魚苗
         public ICollection<Fry> Fries { get; set; } = new List<Fry>();
         public ICollection<GrowTargetMain> GrowTargets { get; set; } = new List<GrowTargetMain>();
+        public ICollection<FeedingPlanMain> FeedingPlans { get; set; } = new List<FeedingPlanMain>();
     }
 }
