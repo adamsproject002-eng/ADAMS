@@ -1,0 +1,79 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.GrowthTargetReference
+@model GrowthTargetEditViewModel
+
+@{
+    var isEdit = Model.GTDSN.HasValue;
+    ViewData["Title"] = isEdit ? "修改成長目標參考" : "新增成長目標參考";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="GTDSN" />
+    <input type="hidden" asp-for="GTMSN" />
+    <input type="hidden" asp-for="FVSN" />
+    <input type="hidden" asp-for="FishVarietyName" />
+
+    <div class="card">
+        <div class="card-body">
+
+            <!-- 種類 -->
+            <div class="mb-3">
+                <label class="form-label">種類：</label>
+                <div class="form-control-plaintext">
+                    @Model.FishVarietyName
+                </div>
+            </div>
+
+            <!-- DOC / ABW / DailyGrow -->
+            <div class="row mb-3">
+                <div class="col-12 col-md-4 mb-3 mb-md-0">
+                    <label asp-for="DOC" class="form-label"></label>
+                    <input asp-for="DOC" class="form-control" />
+                    <span asp-validation-for="DOC" class="text-danger"></span>
+                </div>
+
+                <div class="col-12 col-md-4 mb-3 mb-md-0">
+                    <label asp-for="ABW" class="form-label"></label>
+                    <input asp-for="ABW" class="form-control" />
+                    <span asp-validation-for="ABW" class="text-danger"></span>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="DailyGrow" class="form-label"></label>
+                    <input asp-for="DailyGrow" class="form-control" readonly />
+                    <span class="form-text text-muted">
+                        送出後依 DOC / ABW 自動計算。
+                    </span>
+                </div>
+            </div>
+
+            <!-- 備註 -->
+            <div class="mb-3">
+                <label asp-for="Remark" class="form-label"></label>
+                <textarea asp-for="Remark" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Remark" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between flex-wrap gap-2">
+            <div>
+                <button type="submit" class="btn btn-primary btn-sm me-2">送出</button>
+                <a asp-action="Index"
+                   asp-route-fvsn="@Model.FVSN"
+                   class="btn btn-outline-secondary btn-sm">
+                    離開
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

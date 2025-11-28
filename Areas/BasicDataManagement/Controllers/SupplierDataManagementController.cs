@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace ADAMS.Areas.BasicDataManagement.Controllers
 {
     [Area("BasicDataManagement")]
-    [FunctionPermission(8)] //供應商資料管理
+    [FunctionPermission(8)]
     public class SupplierDataManagementController : Controller
     {
         private readonly ISupplierDataService _service;
