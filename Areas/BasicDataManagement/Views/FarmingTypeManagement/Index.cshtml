@@ -1,0 +1,181 @@
+﻿@using ADAMS.Areas.BasicDataManagement.ViewModels.FarmingTypeManagement
+@using ADAMS.Areas.Models
+@model FarmingTypeListViewModel
+
+@{
+    ViewData["Title"] = "養殖種類管理";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card mb-3 bg-warning-subtle">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-12 col-md-auto">
+                <label class="form-label mb-0">關鍵字：</label>
+            </div>
+            <div class="col-12 col-md-4">
+                <input type="text" name="keyword" value="@Model.Keyword"
+                       class="form-control form-control-sm"
+                       placeholder="魚種名稱 / 備註" />
+            </div>
+            <div class="col-12 col-md-auto">
+                <button type="submit" class="btn btn-primary btn-sm">搜尋</button>
+            </div>
+
+            <div class="col-12 col-md text-md-end mt-2 mt-md-0">
+                @if (Model.IsOperationCompany)
+                {
+                    <a asp-action="Create" class="btn btn-primary btn-sm">
+                        新增魚種
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+
+        <!-- 桌機版：表格 -->
+        <div class="d-none d-md-block">
+            <table class="table table-bordered table-hover table-sm mb-0">
+                <thead class="table-warning">
+                    <tr class="text-center">
+                        <th style="width: 10%">No</th>
+                        <th style="width: 30%">魚種名稱</th>
+                        <th>備註</th>
+                        <th style="width: 20%">功能</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Items.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center">尚無魚種資料</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        var idx = 0;
+                        foreach (var item in Model.Items)
+                        {
+                            idx++;
+                            <tr>
+                                <td class="text-center">@idx</td>
+                                <td>@item.FVName</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.Remark))
+                                    {
+                                        <button type="button"
+                                                class="btn btn-info btn-sm"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#remarkModal"
+                                                data-name="@item.FVName"
+                                                data-remark="@item.Remark">
+                                            查看
+                                        </button>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (Model.IsOperationCompany)
+                                    {
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.FVSN"
+                                           class="btn btn-primary btn-sm me-1">
+                                            修改
+                                        </a>
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('確認要刪除此魚種？');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.FVSN" />
+                                            <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 手機版：卡片列表 -->
+        <div class="d-block d-md-none p-2">
+            @if (!Model.Items.Any())
+            {
+                <div class="text-center py-3">尚無魚種資料</div>
+            }
+            else
+            {
+                var idx = 0;
+                foreach (var item in Model.Items)
+                {
+                    idx++;
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <div class="fw-bold">(@idx) @item.FVName</div>
+                                    @if (!string.IsNullOrWhiteSpace(item.Remark))
+                                    {
+                                        <div class="mt-1">
+                                            <button type="button"
+                                                    class="btn btn-info btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#remarkModal"
+                                                    data-name="@item.FVName"
+                                                    data-remark="@item.Remark">
+                                                查看備註
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="text-end">
+                                    @if (Model.IsOperationCompany)
+                                    {
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.FVSN"
+                                           class="btn btn-primary btn-sm mb-1">
+                                            修改
+                                        </a>
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              onsubmit="return confirm('確認要刪除此魚種？');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@item.FVSN" />
+                                            <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<!-- 共用備註 Modal -->
+<partial name="_RemarkModal"
+         model="@(new RemarkModalOptions { Title = "備註內容", NameLabel = "魚種名稱：" })" />
