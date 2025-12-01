@@ -1,0 +1,103 @@
+﻿@* Areas/PondOverview/Views/PondOverviewPage/Index.cshtml *@
+@using ADAMS.Areas.PondOverview.ViewModels.PondOverviewPage
+@model PondOverviewListViewModel
+
+@{
+    ViewData["Title"] = "養殖池總覽";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div class="card mb-3 bg-warning-subtle">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-center">
+
+            @* (A) 營運公司帳號才顯示養殖戶下拉 *@
+            @if (Model.IsOperationCompany)
+            {
+                <div class="col-12 col-md-auto">
+                    <label class="form-label me-1">養殖戶：</label>
+                    <select name="tenantSN"
+                            class="form-select form-select-sm d-inline-block"
+                            style="min-width: 180px;"
+                            onchange="this.form.submit()">
+                        @foreach (var t in Model.TenantOptions)
+                        {
+                            <option value="@t.SN" selected="@(t.SN == Model.CurrentTenantSN)">
+                                @t.TenantName
+                            </option>
+                        }
+                    </select>
+                </div>
+            }
+
+            <div class="col-12 col-md-auto">
+                <label class="form-label me-1">場區：</label>
+                <select name="areaSN"
+                        class="form-select form-select-sm d-inline-block"
+                        style="min-width: 160px;"
+                        onchange="this.form.submit()">
+                    @foreach (var a in Model.AreaOptions)
+                    {
+                        <option value="@a.AreaSN" selected="@(a.AreaSN == Model.CurrentAreaSN)">
+                            @a.AreaName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12 col-md text-md-end">
+                <span class="small text-muted">
+                    場區：<strong>@Model.CurrentAreaName</strong>
+                    ，總面積：<strong>@Model.CurrentAreaTotalArea.ToString("0") m²</strong>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+
+        @if (!Model.Ponds.Any())
+        {
+            <div class="text-center text-muted py-5">
+                目前此場區尚無養殖池資料。
+            </div>
+        }
+        else
+        {
+            @* RWD 卡片排版：手機 1 欄、平板 2 欄、桌機 3~4 欄 *@
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
+                @foreach (var pond in Model.Ponds)
+                {
+                    <div class="col">
+                        <a asp-action="Detail"
+                           asp-route-id="@pond.PondSN"
+                           class="text-decoration-none text-dark">
+                            <div class="card h-100 shadow-sm border-0 bg-light">
+                                <div class="card-body d-flex flex-column justify-content-center text-center">
+                                    <h5 class="fw-bold mb-3">@pond.PondNum</h5>
+
+                                    <div class="mb-1">@pond.PondArea.ToString("0") m²</div>
+                                    <div class="mb-1">
+                                        @pond.StockingQty.ToString("N0") pcs
+                                    </div>
+                                    <div class="mb-1">
+                                        @(string.IsNullOrEmpty(pond.FishVarietyName)
+                                                                        ? "—"
+                                                                        : pond.FishVarietyName)
+                            </div>
+                            <div class="text-muted">
+                                ABW：@pond.CurrentABW.ToString("0.00") g
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+                        }
+            </div>
+        }
+    </div>
+</div>

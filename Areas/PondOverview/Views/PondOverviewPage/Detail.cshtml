@@ -1,0 +1,81 @@
+﻿@* Areas/PondOverview/Views/PondOverviewPage/Detail.cshtml *@
+@using ADAMS.Areas.PondOverview.ViewModels.PondOverviewPage
+@model PondDetailViewModel
+
+@{
+    ViewData["Title"] = $"養殖池 {Model.PondNum} 詳細資料";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        ← 返回養殖池總覽
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-header bg-info-subtle fw-bold">
+        池號 @Model.PondNum　
+        面積：@Model.PondArea.ToString("0") m²
+    </div>
+
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-5 col-md-3">養殖戶</dt>
+            <dd class="col-7 col-md-9">@Model.TenantName</dd>
+
+            <dt class="col-5 col-md-3">場區</dt>
+            <dd class="col-7 col-md-9">@Model.AreaName</dd>
+
+            <dt class="col-5 col-md-3">當前管理員</dt>
+            <dd class="col-7 col-md-9">@Model.ManagerName</dd>
+
+            <dt class="col-5 col-md-3">放養碼</dt>
+            <dd class="col-7 col-md-9">@Model.StockingCode</dd>
+
+            <dt class="col-5 col-md-3">放養種類</dt>
+            <dd class="col-7 col-md-9">@Model.FishVarietyName</dd>
+
+            <dt class="col-5 col-md-3">PL 或克/尾</dt>
+            <dd class="col-7 col-md-9">@Model.PLorGramUnit</dd>
+
+            <dt class="col-5 col-md-3">放養總尾數</dt>
+            <dd class="col-7 col-md-9">@Model.StockingQty.ToString("N0") pcs</dd>
+
+            <dt class="col-5 col-md-3">密度</dt>
+            <dd class="col-7 col-md-9">@Model.Density.ToString("0.##") pcs/m²</dd>
+
+            <dt class="col-5 col-md-3">放苗日期</dt>
+            <dd class="col-7 col-md-9">
+                @(Model.StockingDate?.ToString("yyyy/MM/dd") ?? "—")
+            </dd>
+
+            <dt class="col-5 col-md-3">最近收成 / 採樣日</dt>
+            <dd class="col-7 col-md-9">
+                @(Model.LastSampleOrHarvestDate?.ToString("yyyy/MM/dd") ?? "—")
+            </dd>
+
+            <dt class="col-5 col-md-3">最近 ABW</dt>
+            <dd class="col-7 col-md-9">@Model.CurrentABW.ToString("0.00") g</dd>
+
+            <dt class="col-5 col-md-3">DOC</dt>
+            <dd class="col-7 col-md-9">@Model.DOC days</dd>
+
+            <dt class="col-5 col-md-3">累計收成重量</dt>
+            <dd class="col-7 col-md-9">@Model.AccumulatedHarvestWeight.ToString("N2") kg</dd>
+
+            <dt class="col-5 col-md-3">收穫次數</dt>
+            <dd class="col-7 col-md-9">@Model.HarvestTimes</dd>
+
+            <dt class="col-5 col-md-3">存活率</dt>
+            <dd class="col-7 col-md-9">@Model.SurvivalRate.ToString("0.##") %</dd>
+
+            <dt class="col-5 col-md-3">備註</dt>
+            <dd class="col-7 col-md-9">
+                @(string.IsNullOrWhiteSpace(Model.Remark) ? "—" : Model.Remark)
+            </dd>
+        </dl>
+    </div>
+</div>
