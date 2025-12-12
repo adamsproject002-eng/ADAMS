@@ -42,5 +42,7 @@ namespace ADAMS.Models
 
         [StringLength(50)]
         public string? DeleteUser { get; set; }
+
+        public ICollection<FeedingRecord> FeedingRecords { get; set; } = new List<FeedingRecord>();
     }
 }

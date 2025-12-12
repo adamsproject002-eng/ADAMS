@@ -24,6 +24,10 @@ namespace ADAMS.Data
         public DbSet<FeedingPlanMain> FeedingPlanMain { get; set; }
         public DbSet<FeedingPlanDetail> FeedingPlanDetail { get; set; }
         public DbSet<Unit> Unit { get; set; }
+        public DbSet<FryRecord> FryRecord { get; set; }
+        public DbSet<FeedingRecord> FeedingRecord { get; set; }
+        public DbSet<SamplingRecord> SamplingRecord { get; set; }
+        public DbSet<HarvestRecord> HarvestRecord { get; set; } 
         protected override void OnModelCreating(ModelBuilder b)
         {
             base.OnModelCreating(b);
@@ -145,6 +149,24 @@ namespace ADAMS.Data
                 .HasOne(d => d.Main)
                 .WithMany(m => m.Details)
                 .HasForeignKey(d => d.FPMSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.Entity<FeedingRecord>()
+                .HasOne(r => r.Pond)
+                .WithMany(p => p.FeedingRecords)
+                .HasForeignKey(r => r.PondSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.Entity<FeedingRecord>()
+                .HasOne(r => r.Feed)
+                .WithMany(f => f.FeedingRecords)
+                .HasForeignKey(r => r.FeedSN)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.Entity<FeedingRecord>()  
+                .HasOne(r => r.TimeZone)
+                .WithMany(t => t.FeedingRecords)
+                .HasForeignKey(r => r.TimeZoneSN)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

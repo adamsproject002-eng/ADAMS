@@ -4,6 +4,7 @@ using ADAMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ADAMS.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251202094415_AddFryRecordTable")]
+    partial class AddFryRecordTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -864,78 +867,6 @@ namespace ADAMS.Migrations
                     b.ToTable("GrowTargetMain");
                 });
 
-            modelBuilder.Entity("ADAMS.Models.HarvestRecord", b =>
-                {
-                    b.Property<int>("HarvestRecordSN")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("HarvestRecordSN"));
-
-                    b.Property<decimal>("ABW")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUser")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("DOC")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeleteUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("FarmingCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("HarvestDate")
-                        .HasColumnType("date");
-
-                    b.Property<int>("HarvestPCS")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HarvestType")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<decimal>("HarvestWeight")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ManageAccount")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifyUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("PondSN")
-                        .HasColumnType("int");
-
-                    b.HasKey("HarvestRecordSN");
-
-                    b.HasIndex("PondSN");
-
-                    b.ToTable("HarvestRecord");
-                });
-
             modelBuilder.Entity("ADAMS.Models.Pond", b =>
                 {
                     b.Property<int>("PondSN")
@@ -1008,79 +939,6 @@ namespace ADAMS.Migrations
                     b.HasIndex("TenantSN");
 
                     b.ToTable("Pond");
-                });
-
-            modelBuilder.Entity("ADAMS.Models.SamplingRecord", b =>
-                {
-                    b.Property<int>("SamplingRecordSN")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SamplingRecordSN"));
-
-                    b.Property<decimal>("ABW")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreateUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("DOC")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("DeleteTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeleteUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("FarmingCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ManageAccount")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("ModifyTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ModifyUser")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("PondSN")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Remark")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SamplingDate")
-                        .HasColumnType("date");
-
-                    b.Property<int>("SamplingPCS")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SamplingType")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<decimal>("SamplingWeight")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.HasKey("SamplingRecordSN");
-
-                    b.HasIndex("PondSN");
-
-                    b.ToTable("SamplingRecord");
                 });
 
             modelBuilder.Entity("ADAMS.Models.Supplier", b =>
@@ -1516,17 +1374,6 @@ namespace ADAMS.Migrations
                     b.Navigation("FishVariety");
                 });
 
-            modelBuilder.Entity("ADAMS.Models.HarvestRecord", b =>
-                {
-                    b.HasOne("ADAMS.Models.Pond", "Pond")
-                        .WithMany("HarvestRecords")
-                        .HasForeignKey("PondSN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Pond");
-                });
-
             modelBuilder.Entity("ADAMS.Models.Pond", b =>
                 {
                     b.HasOne("ADAMS.Models.Area", "Area")
@@ -1544,17 +1391,6 @@ namespace ADAMS.Migrations
                     b.Navigation("Area");
 
                     b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("ADAMS.Models.SamplingRecord", b =>
-                {
-                    b.HasOne("ADAMS.Models.Pond", "Pond")
-                        .WithMany("SamplingRecords")
-                        .HasForeignKey("PondSN")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Pond");
                 });
 
             modelBuilder.Entity("ADAMS.Models.AccountGroup", b =>
@@ -1603,10 +1439,6 @@ namespace ADAMS.Migrations
                     b.Navigation("FeedingRecords");
 
                     b.Navigation("FryRecords");
-
-                    b.Navigation("HarvestRecords");
-
-                    b.Navigation("SamplingRecords");
                 });
 
             modelBuilder.Entity("ADAMS.Models.Supplier", b =>
