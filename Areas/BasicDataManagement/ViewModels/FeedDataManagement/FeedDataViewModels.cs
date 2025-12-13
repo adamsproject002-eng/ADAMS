@@ -26,12 +26,6 @@ namespace ADAMS.Areas.BasicDataManagement.ViewModels.FeedDataManagement
         public PaginationInfo Pagination { get; set; } = new PaginationInfo();
     }
 
-    public class SupplierOption
-    {
-        public int SupplierSN { get; set; }
-        public string SupplierName { get; set; } = string.Empty;
-    }
-
     public class FeedEditViewModel
     {
         public int? FeedSN { get; set; }

@@ -9,12 +9,6 @@ namespace ADAMS.Areas.BasicDataManagement.ViewModels.SeedlingDataManagement
         public string FVName { get; set; } = "";
     }
 
-    public class SupplierOption
-    {
-        public int SupplierSN { get; set; }
-        public string SupplierName { get; set; } = "";
-    }
-
     /// <summary>列表上的每一列</summary>
     public class SeedlingListItemViewModel
     {

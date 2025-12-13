@@ -1,0 +1,239 @@
+﻿@using ADAMS.Areas.OperationManagement.ViewModels.FeedingRecordQuery
+@model FeedingRecordEditViewModel
+
+@{
+    var isEdit = Model.FeedingRecordSN.HasValue;
+    ViewData["Title"] = isEdit ? "修改投餌紀錄" : "新增投餌紀錄";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="FeedingRecordSN" />
+
+    <div class="row mb-3">
+        @* 養殖戶（僅營運公司可選）
+        @if (Model.IsOperationCompany)
+        {
+            <div class="col-md-4 mb-2">
+                <label class="form-label">養殖戶：</label>
+                <select asp-for="TenantSN" class="form-select form-select-sm">
+                    @foreach (var t in Model.TenantOptions)
+                    {
+                        <option value="@t.SN">@t.TenantName</option>
+                    }
+                </select>
+            </div>
+        }
+        else
+        {
+            <input type="hidden" asp-for="TenantSN" />
+        } *@
+        <input type="hidden" asp-for="TenantSN" />
+
+        <div class="col-md-4 mb-2">
+            <label class="form-label">場區：</label>
+            <select asp-for="AreaSN" class="form-select form-select-sm">
+                @foreach (var a in Model.AreaOptions)
+                {
+                    <option value="@a.AreaSN">@a.AreaName</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-4 mb-2">
+            <label class="form-label">池號：</label>
+            <select asp-for="PondSN" class="form-select form-select-sm">
+                @foreach (var p in Model.PondOptions)
+                {
+                    <option value="@p.PondSN">@p.PondNum</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6 mb-2">
+            <label asp-for="FarmingCode" class="form-label"></label>
+            <input asp-for="FarmingCode" class="form-control form-control-sm " readonly />
+            <span asp-validation-for="FarmingCode" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-2">
+            <label asp-for="FishVarietyName" class="form-label"></label>
+            <input asp-for="FishVarietyName" class="form-control form-control-sm" readonly />
+            <span asp-validation-for="FishVarietyName" class="text-danger"></span>
+        </div>
+
+       
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6 mb-2">
+            <label asp-for="FeedingDate" class="form-label"></label>
+            <input asp-for="FeedingDate" class="form-control form-control-sm" />
+            <span asp-validation-for="FeedingDate" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-2">
+            <label asp-for="TimeZoneSN" class="form-label"></label>
+            <select asp-for="TimeZoneSN" class="form-select form-select-sm">
+                @foreach (var tz in Model.TimeZoneOptions)
+                {
+                    <option value="@tz.TimeZoneSN">@tz.DisplayText</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="SupplierSN" class="form-label">飼料品牌：</label>
+            <select asp-for="SupplierSN"
+                    class="form-select"
+                    asp-items="@(new SelectList(Model.SupplierOptions, "SupplierSN", "SupplierName"))">
+                <option value="">請選擇</option>
+            </select>
+            <span asp-validation-for="SupplierSN" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-4">
+            <label asp-for="FeedSN" class="form-label">飼料名稱：</label>
+            <select asp-for="FeedSN"
+                    class="form-select"
+                    asp-items="@(new SelectList(Model.FeedOptions, "FeedSN", "FeedName"))">
+                <option value="">請選擇</option>
+            </select>
+            <span asp-validation-for="FeedSN" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4 mb-2">
+            <label asp-for="FeedingAmount" class="form-label"></label>
+            <input asp-for="FeedingAmount" class="form-control form-control-sm" />
+            <span asp-validation-for="FeedingAmount" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-2">
+            <label asp-for="Unit" class="form-label"></label>
+            <input asp-for="Unit" class="form-control form-control-sm" readonly />
+        </div>
+        <div class="col-md-4 mb-2">
+            <label asp-for="SurvivalRate" class="form-label"></label>
+            <input asp-for="SurvivalRate" class="form-control form-control-sm" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4 mb-2">
+            <label asp-for="ABW" class="form-label"></label>
+            <input asp-for="ABW" class="form-control form-control-sm" />
+            <span asp-validation-for="ABW" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-2">
+            <label asp-for="DOC" class="form-label"></label>
+            <input asp-for="DOC" class="form-control form-control-sm" />
+            <span asp-validation-for="DOC" class="text-danger"></span>
+        </div>
+        <div class="col-md-4 mb-2">
+            <label asp-for="ManageAccount" class="form-label"></label>
+            <select asp-for="ManageAccount" class="form-select form-select-sm">
+                @foreach (var m in Model.ManageAccountOptions)
+                {
+                    <option value="@m.AccountName">
+                        @m.RealName (@m.AccountName)
+                    </option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mb-3 border-top pt-3">
+        <div class="col-md-4 mb-2">
+            <label class="form-label">ABW 導引：</label>
+            <div class="form-control form-control-sm bg-light" readonly>
+                @Model.AWBGuide?.ToString("0.##")
+            </div>
+        </div>
+        <div class="col-md-4 mb-2">
+            <label class="form-label">放養尾數：</label>
+            <div class="form-control form-control-sm bg-light" readonly>
+                @Model.StockingQty?.ToString("N0")
+            </div>
+        </div>
+        <div class="col-md-4 mb-2">
+            <label class="form-label">估計存活基準：</label>
+            <div class="form-control form-control-sm bg-light" readonly>
+                @Model.SurvivalBase?.ToString("0.##")
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary btn-sm me-2">確定</button>
+        <a asp-action="Index"
+           asp-route-tenantSN="@Model.TenantSN"
+           asp-route-areaSN="@Model.AreaSN"
+           class="btn btn-outline-secondary btn-sm">
+            取消
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function () {
+            const tenantSelect = document.getElementById('TenantSN');
+            const areaSelect = document.getElementById('AreaSN');
+            const pondSelect = document.getElementById('PondSN');
+
+            if (!areaSelect || !pondSelect) {
+                return;
+            }
+
+            async function reloadPonds() {
+                const tenantSN = tenantSelect ? tenantSelect.value : '@Model.TenantSN';
+                const areaSN = areaSelect.value;
+
+                if (!tenantSN || !areaSN) return;
+
+                const url = '@Url.Action("GetPonds", "FeedingRecordQuery", new { area = "OperationManagement" })'
+                    + '?tenantSN=' + encodeURIComponent(tenantSN)
+                    + '&areaSN=' + encodeURIComponent(areaSN);
+
+                try {
+                    const res = await fetch(url);
+                    if (!res.ok) return;
+
+                    const data = await res.json(); // [{ pondSN, pondNum }, ...]
+
+                    // 清空原本的 options
+                    pondSelect.innerHTML = '';
+
+                    // 重新塞入新的池號選項
+                    for (const p of data) {
+                        const opt = document.createElement('option');
+                        opt.value = p.pondSN;
+                        opt.textContent = p.pondNum;
+                        pondSelect.appendChild(opt);
+                    }
+                } catch (e) {
+                    console.error('載入池號失敗', e);
+                }
+            }
+
+            // 場區變動 → 重載池號
+            areaSelect.addEventListener('change', reloadPonds);
+
+            // 營運公司改養殖戶 → 先重載場區 & 池號（這裡先簡化，只重載池號）
+            if (tenantSelect) {
+                tenantSelect.addEventListener('change', reloadPonds);
+            }
+        })();
+    </script>
+}

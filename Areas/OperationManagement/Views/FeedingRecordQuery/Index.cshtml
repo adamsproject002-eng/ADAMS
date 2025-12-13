@@ -1,0 +1,214 @@
+﻿@* Areas/OperationManagement/Views/FeedingRecordQuery/Index.cshtml *@
+@using ADAMS.Areas.OperationManagement.ViewModels.FeedingRecordQuery
+@using ADAMS.Areas.Models
+@model FeedingRecordListViewModel
+
+@{
+    ViewData["Title"] = "投餌作業紀錄";
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card mb-3 bg-warning-subtle">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-center">
+
+            @* (A) 營運公司才顯示養殖戶下拉 *@
+            @if (Model.IsOperationCompany)
+            {
+                <div class="col-12 col-md-auto">
+                    <label class="form-label me-1">養殖戶：</label>
+                    <select name="tenantSN"
+                            class="form-select form-select-sm d-inline-block"
+                            style="min-width: 180px;"
+                            onchange="this.form.submit()">
+                        @foreach (var t in Model.TenantOptions)
+                        {
+                            <option value="@t.SN" selected="@(t.SN == Model.CurrentTenantSN)">
+                                @t.TenantName
+                            </option>
+                        }
+                    </select>
+                </div>
+            }
+
+            <div class="col-12 col-md-auto">
+                <label class="form-label me-1">場區：</label>
+                <select name="areaSN"
+                        class="form-select form-select-sm d-inline-block"
+                        style="min-width: 160px;"
+                        onchange="this.form.submit()">
+                    <option value="">全部</option>
+                    @foreach (var a in Model.AreaOptions)
+                    {
+                        <option value="@a.AreaSN" selected="@(a.AreaSN == Model.CurrentAreaSN)">
+                            @a.AreaName
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-12 col-md-auto">
+                <label class="form-label me-1">投料日期：</label>
+                <input type="date" name="startDate"
+                       class="form-control form-control-sm d-inline-block"
+                       style="min-width: 150px;"
+                       value="@(Model.StartDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+            <div class="col-12 col-md-auto">
+                <span class="mx-1">至</span>
+                <input type="date" name="endDate"
+                       class="form-control form-control-sm d-inline-block"
+                       style="min-width: 150px;"
+                       value="@(Model.EndDate?.ToString("yyyy-MM-dd"))" />
+            </div>
+
+            <div class="col-12 col-md-auto">
+                <button type="submit" class="btn btn-primary btn-sm">搜尋</button>
+            </div>
+
+            <div class="col-12 col-md text-md-end">
+                <a class="btn btn-success btn-sm me-2"
+                   asp-action="Export"
+                   asp-route-tenantSN="@Model.CurrentTenantSN"
+                   asp-route-areaSN="@Model.CurrentAreaSN"
+                   asp-route-startDate="@Model.StartDate?.ToString("yyyy-MM-dd")"
+                   asp-route-endDate="@Model.EndDate?.ToString("yyyy-MM-dd")">
+                    匯出 Excel
+                </a>
+
+                <a class="btn btn-primary btn-sm"
+                   asp-action="Create"
+                   asp-route-tenantSN="@Model.CurrentTenantSN"
+                   asp-route-areaSN="@Model.CurrentAreaSN">
+                    新增投料紀錄
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!Model.Items.Any())
+{
+    <div class="card">
+        <div class="card-body text-center text-muted">
+            目前查無投餌紀錄。
+        </div>
+    </div>
+}
+else
+{
+    <div class="card d-none d-md-block">
+        <div class="card-body p-0">
+            <table class="table table-bordered table-hover table-sm mb-0">
+                <thead class="table-warning text-center">
+                    <tr>
+                        <th style="width: 5%">No</th>
+                        <th style="width: 12%">放養碼</th>
+                        <th style="width: 10%">投料日期</th>
+                        <th style="width: 12%">投料時間</th>
+                        <th style="width: 12%">品牌</th>
+                        <th style="width: 12%">名稱</th>
+                        <th style="width: 8%">kgs</th>
+                        <th style="width: 8%">估計存活</th>
+                        <th style="width: 8%">AWB</th>
+                        <th style="width: 8%">DOC</th>
+                        <th style="width: 8%">AWB基準</th>
+                        <th style="width: 10%">功能</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var idx = 1;
+                    }
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-center">@idx</td>
+                            <td>@item.FarmingCode</td>
+                            <td class="text-center">@item.FeedingDate.ToString("yyyy-MM-dd")</td>
+                            <td class="text-center">@item.TimeZoneText</td>
+                            <td>@item.FeedBrand</td>
+                            <td>@item.FeedName</td>
+                            <td class="text-end">@item.FeedingAmount.ToString("0.##")</td>
+                            <td class="text-end">@item.SurvivalRate?.ToString("0.##")</td>
+                            <td class="text-end">@item.ABW.ToString("0.##")</td>
+                            <td class="text-end">@item.DOC</td>
+                            <td class="text-end">@item.ABWGuide?.ToString("0.##")</td>
+                            <td class="text-center">
+                                <a class="btn btn-primary btn-sm me-1"
+                                   asp-action="Edit"
+                                   asp-route-id="@item.FeedingRecordSN">
+                                    修改
+                                </a>
+                                <form asp-action="Delete"
+                                      method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('確認要刪除此筆投餌紀錄？');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.FeedingRecordSN" />
+                                    <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                                    <input type="hidden" name="areaSN" value="@Model.CurrentAreaSN" />
+                                    <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                                </form>
+                            </td>
+                        </tr>
+                        idx++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @* 手機版：卡片 *@
+    <div class="d-md-none">
+        @foreach (var item in Model.Items)
+        {
+            <div class="card mb-2">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>@item.FarmingCode</strong>
+                        </div>
+                        <div class="text-muted small">
+                            @item.FeedingDate.ToString("yyyy-MM-dd")
+                        </div>
+                    </div>
+                    <div class="small mt-1">
+                        <div>時間：@item.TimeZoneText</div>
+                        <div>飼料：@item.FeedBrand @item.FeedName</div>
+                        <div>數量：@item.FeedingAmount.ToString("0.##") @item.Unit</div>
+                        <div>估計存活：@item.SurvivalRate?.ToString("0.##")</div>
+                        <div>AWB：@item.ABW.ToString("0.##")，DOC：@item.DOC</div>
+                    </div>
+                    <div class="mt-2 text-end">
+                        <a class="btn btn-primary btn-sm me-1"
+                           asp-action="Edit"
+                           asp-route-id="@item.FeedingRecordSN">
+                            修改
+                        </a>
+                        <form asp-action="Delete"
+                              method="post"
+                              class="d-inline"
+                              onsubmit="return confirm('確認要刪除此筆投餌紀錄？');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.FeedingRecordSN" />
+                            <input type="hidden" name="tenantSN" value="@Model.CurrentTenantSN" />
+                            <input type="hidden" name="areaSN" value="@Model.CurrentAreaSN" />
+                            <button type="submit" class="btn btn-danger btn-sm">刪除</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

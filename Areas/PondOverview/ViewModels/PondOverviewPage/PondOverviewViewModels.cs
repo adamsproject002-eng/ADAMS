@@ -22,15 +22,6 @@ namespace ADAMS.Areas.PondOverview.ViewModels.PondOverviewPage
     }
 
     /// <summary>
-    /// 場區下拉選項
-    /// </summary>
-    public class AreaOption
-    {
-        public int AreaSN { get; set; }
-        public string AreaName { get; set; } = string.Empty;
-    }
-
-    /// <summary>
     /// 總覽畫面一個卡片要顯示的資訊
     /// </summary>
     public class PondCardViewModel
